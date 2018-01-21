@@ -1,7 +1,7 @@
 # Mathematical Statistics
 Math 392 | Reed College | Spring 2018
 
-This 
+![](figs/mcmc.png)
 
 ### Schedule
 
