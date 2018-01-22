@@ -1,0 +1,26 @@
+---
+title: "MATH 392 Problem Set 1"
+output: 
+  github_document:
+    fig_height: 3
+    fig_width: 6
+---
+
+
+```{r, include=FALSE}
+require(tidyverse) # load package
+require(resampledata)
+options(digits=4) # print 4 decimal places only
+set.seed(1999) # set seed for reproducibility
+```
+
+Exercises 1.1, 1.3, 1.5, 2.4, 2.8
+
+#### Exercise 2.9
+Let $X$ be a random variable with cdf $F(x) = 1 - 9/x^2$ for $x \ge 3$. Find an expression for the $p$th quantile of $X$.
+
+#### Exercise 2.10
+Let $X \sim \textrm{Binom}(20, 0.3)$ and let $F$ denote its cdf. Does there exist a $q$ such that $F(q) = 0.05$?
+
+#### Exercise 2.11
+TBA
