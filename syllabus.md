@@ -1,6 +1,5 @@
 # Syllabus
-#### Math 392, Mathematical Statistics
-Math 392 | Reed College | Spring 2018
+#### Math 392 | Reed College | Spring 2018
 
 This course concerns the foundational mathematical principles that guide the practice of statistical inference. Topics include properties of estimators (sufficiency, efficiency), methods of estimation (method of moments, maximum likelihood), hypothesis tests, confidence intervals, permutation testing, the bootstrap, linear models, and Bayesian methods. To succeed in this course you should have experience with discreet and continuous probability, integral calculus, linear algebra, and programming in R.
 
