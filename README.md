@@ -10,7 +10,9 @@ Math 392 | Reed College | Spring 2018
 #### Week 1: Intro
 
 **Monday**
-- This
+- Parameters and statistics
+- Example: stratified sampling
+- Reading: p. , 339 - 340
 
 **Wednesday**
 - That
