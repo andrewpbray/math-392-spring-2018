@@ -1,0 +1,64 @@
+---
+title: "MATH 392 Problem Set ZZQ"
+author: "REPLACE WITH YOUR NAME"
+date: "REPLACE WITH TODAY'S DATE"
+output: 
+  pdf_document:
+    fig_height: 3
+    fig_width: 6
+---
+
+
+```{r, include=FALSE}
+require(tidyverse) # load package
+options(digits=4) # print 4 decimal places only
+set.seed(1999) # set seed for reproducibility
+```
+
+## Problem X
+
+### Analytic solution
+
+Math can be typed in as Latex either inline with single dollar signs $\sum_{i=1}^n$ or offset with double dollar signs.
+
+$$
+H_0: \rho = 0
+$$
+
+or if you'd like to align multiple lines by the equal sign:
+
+$$
+\begin{aligned}
+A &= x \\
+B &= y + 7
+\end{aligned}
+$$
+A very useful resource if you're just staring with \LaTeX is \texttt{http://detexify.kirelabs.org/classify.html}.
+
+### Empirical solution
+
+```{r}
+# code goes here
+```
+
+## Problem Y
+
+### Analytic solution
+
+### Empirical solution
+
+```{r}
+# code goes here
+```
+
+
+## Problem Z
+
+### Analytic solution
+
+### Empirical solution
+
+```{r}
+# code goes here
+```
+
