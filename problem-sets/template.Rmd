@@ -10,7 +10,8 @@ output:
 
 
 ```{r, include=FALSE}
-require(tidyverse) # load package
+require(tidyverse) # load packages
+require(resampledata)
 options(digits=4) # print 4 decimal places only
 set.seed(1999) # set seed for reproducibility
 ```
@@ -19,7 +20,7 @@ set.seed(1999) # set seed for reproducibility
 
 ### Analytic solution
 
-Math can be typed in as Latex either inline with single dollar signs $\sum_{i=1}^n$ or offset with double dollar signs.
+Math can be typed in as Latex either inline with single dollar signs $\bar{x} = \frac{1}{n} \sum_{i=1}^n x_i$ or offset with double dollar signs.
 
 $$
 H_0: \rho = 0
@@ -33,6 +34,7 @@ A &= x \\
 B &= y + 7
 \end{aligned}
 $$
+
 A very useful resource if you're just staring with \LaTeX is \texttt{http://detexify.kirelabs.org/classify.html}.
 
 ### Empirical solution
