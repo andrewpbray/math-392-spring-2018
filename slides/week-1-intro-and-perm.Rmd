@@ -1,0 +1,359 @@
+---
+title: "Week One"
+output: ioslides_presentation
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Install these packages first
+knitr::opts_chunk$set(message = FALSE)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(mosaic)
+```
+
+# Case Study: Sampling
+
+## Case Study: Sampling {.build}
+
+We can estimate the mean $\mu$ of a population of size $N$ in two ways:
+
+1. Take a simple random sample of size $n$ and calculate $\bar{x}$.
+2. Take a stratified sample of $n_1$ from the first strata and $n_2$ from the 
+second strata, proportionally, then compute $\bar{x}$.
+
+Which estimate (r.v.) will have lower **bias**? Lower **variance**?
+
+## Set up population {.build}
+
+```{r}
+set.seed(403)
+```
+
+```{r}
+# generate population
+N_1 <- 200
+N_2 <- 300
+g1 <- rnorm(N_1, mean = 1, sd = 1)
+g2 <- rnorm(N_2, mean = 3, sd = 1)
+pop <- c(g1, g2)
+```
+
+```{r}
+# lay out parameters
+N <- N_1 + N_2
+l_1 <- N_1/N
+l_2 <- N_2/N
+mu_1 <- mean(g1)
+sigsq_1 <- var(g1) * (N_1 - 1) / N_1
+mu_2 <- mean(g2)
+sigsq_2 <- var(g2) * (N_2 - 1) / N_2
+```
+
+
+## One simple random sample {.build}
+
+```{r fig.height=3}
+n <- 100
+samp <- sample(pop, size = n)
+df <- data.frame(x = samp)
+library(tidyverse)
+ggplot(df, aes(x = x)) + # dotplot
+  geom_dotplot(alpha = .5)
+```
+
+
+## One simple random sample, cont {.build}
+
+```{r}
+# Density plot
+ggplot(df, aes(x = x)) +
+  geom_density(alpha = .5)
+mean(samp)
+```
+
+
+## Simulation: simple random sampling {.build}
+
+```{r}
+it <- 5000
+xbar_srs <- rep(NA, it)
+for (i in 1:it) {
+  samp <- sample(pop, size = n)
+  xbar_srs[i] <- mean(samp)
+}
+```
+
+```{r}
+head(xbar_srs)
+```
+
+
+## One stratified sample {.build}
+
+```{r, fig.height=3}
+n_1 <- n * l_1
+n_2 <- n * l_2
+samp_1 <- sample(g1, size = n_1)
+samp_2 <- sample(g2, size = n_2)
+df <- data.frame(x = c(samp_1, samp_2),
+                 group = rep(c("1", "2"), times = c(n_1, n_2)))
+ggplot(df, aes(x = x, fill = group)) +
+  geom_dotplot(alpha = .5)
+```
+
+
+## One stratified sample, cont. {.build}
+
+```{r}
+ggplot(df, aes(x = x, fill = group)) +
+  geom_density(alpha = .5)
+```
+
+
+## Simulation: stratification {.build}
+
+```{r}
+xbar_strat <- rep(NA, it)
+for (i in 1:it) {
+  samp_1 <- sample(g1, size = n_1)
+  samp_2 <- sample(g2, size = n_2)
+  xbar_strat[i] <- mean(c(samp_1, samp_2))
+}
+```
+
+```{r}
+head(xbar_strat)
+```
+
+
+## Simulations compared {.build}
+
+```{r, fig.height=4}
+df <- data.frame(xbar = c(xbar_srs, xbar_strat),
+                 method = rep(c("srs", "strat"), times = c(it, it)))
+ggplot(df, aes(x = xbar, fill = method)) +
+  geom_density(alpha = .5)
+```
+
+
+## Simulation vs Analytical {.build .smaller}
+
+Through simulation, we have an empirical approximation to the variances of each estimate that we can compare to our analytical estimates.
+
+```{r}
+#SRS
+var(xbar_srs)
+(1/n) * (var(pop) * (N-1)/N)
+# stratified
+var(xbar_strat)
+(1/n) * (l_1 * sigsq_1 + l_2 * sigsq_2)
+```
+
+
+## Simulation vs Analytical, cont. {.build .smaller}
+
+We can more directly compare the analytical variances by writing the SRS estimate in terms of the strata variances and finding the difference in the variances of the two estimates.
+
+$$
+\textrm{difference:} \quad \frac{1}{n} \sum_{j = 1}^J \lambda_j \left( \mu_j - \mu \right)^2
+$$
+
+### Simulation-Empirical-Computational Approach
+
+- Helps build intuition
+- Checks analytical result
+- Widely applicable
+
+### Analytical Approach
+
+- When it is exists, it is:
+    + more general
+    + often yields insight
+  
+  
+# EDA: graphics
+
+
+## Example: Flight Delays
+
+`FlightDelays` contains informations on flights from LGA during May and June of 2009.
+
+```{r}
+library(resampledata)
+glimpse(FlightDelays)
+```
+
+
+## United delays: histogram
+
+```{r, echo=FALSE}
+UA <- FlightDelays %>%
+  filter(Carrier == "UA")
+ggplot(UA, aes(x = Delay)) +
+  geom_histogram(aes(y=..count../sum(..count..)), position = "identity") +
+  ylab("relative frequency")
+```
+
+X axis is cut into intervals of equal width, the height of the bars indicate the number of obs in each.
+
+# United delays: normalized histogram
+
+```{r, echo=FALSE}
+UA <- FlightDelays %>%
+  filter(Carrier == "UA")
+ggplot(UA, aes(x = Delay)) +
+  geom_histogram(aes(y=..count../sum(..count..)), position = "identity") +
+  ylab("relative frequency")
+```
+
+In this case the height of the bars reflect the mass so that the sum of the heights of the bars is 1.
+
+
+## Density plot as an approx.
+
+Say you take a sample of $n=1000$ values from a Normal$(0,1)$ random variable
+with pdf $f(x) = \frac{1}{\sqrt{2\pi}}\exp\left(-\frac{1}{2}x^2\right)$
+
+```{r, echo=FALSE, fig.width=8, fig.height=4}
+set.seed(76)
+df <- data.frame(x = rnorm(1000))
+ggplot(df, aes(x = x)) +
+  stat_function(fun = dnorm, col = "goldenrod", lwd = 2)
+```
+
+
+## Density plot as an approx.
+
+The density plot is visual approximation of the pdf $f(x)$, using a smoothing parameter $\sigma$.
+
+```{r, echo=FALSE, fig.width=8, fig.height=4}
+ggplot(df, aes(x = x)) +
+  geom_density(col = "red", lwd = 2) +
+  stat_function(fun = dnorm, col = "goldenrod", lwd = 2)
+```
+
+
+## Density plot as an approx.
+
+Lets visualize just 4 points instead of 1000...
+
+```{r, echo=FALSE, fig.width=8, fig.height=3}
+set.seed(17)
+dfsmall <- sample_n(df, 4)
+ggplot(dfsmall, aes(x = x)) +
+  geom_dotplot() +
+  xlim(c(-2, 2))
+```
+
+
+## Density plot as an approx. {.build}
+
+and overlay the density plot with $\sigma = .25$.
+
+```{r, echo=FALSE, fig.width=8, fig.height=3}
+ggplot(dfsmall, aes(x = x)) +
+  geom_dotplot() +
+  xlim(c(-2, 2)) +
+  geom_density(bw = .25)
+```
+
+this is a *kernel smoother* where $\hat{f}(x) = 1/n \sum_{i=1}^n k_i(x)$, where 
+$k_i$ is the Gaussian pdf with $\mu = x_i$ and $\sigma = \sigma$.
+
+
+## Density plot as an approx. {.build}
+
+The higher the $\sigma$, the smoother the approximation ($\sigma = 1$)
+
+```{r, echo=FALSE, fig.width=8, fig.height=3}
+ggplot(dfsmall, aes(x = x)) +
+  geom_dotplot() +
+  xlim(c(-2, 2)) +
+  geom_density(bw = 1)
+```
+
+
+## Boxplots {.build}
+
+United Flight Delays from LGA broken down by day of the week.
+
+```{r, echo=FALSE, fig.width=8, fig.height=4}
+day_of_week_levels <- c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+UA <- UA %>% 
+  mutate(day_of_week = factor(Day, levels = day_of_week_levels))
+ggplot(UA, aes(x = day_of_week, y = Delay)) +
+  geom_boxplot()
+```
+
+
+## Boxplots {.build}
+
+United Flight Delays from LGA broken down by day of the week.
+
+```{r, echo=FALSE, fig.width=8, fig.height=4}
+ggplot(UA, aes(x = day_of_week, y = Delay)) +
+  geom_boxplot() +
+  ylim(c(-20, 50))
+```
+
+
+## Boxplots without the Whiskers
+
+What is [middle class](https://www.washingtonpost.com/news/wonk/wp/2015/03/23/middle-class-varies-from-30000-in-detroit-to-100000-in-san-francisco/) in various cities?
+
+
+## Scatterplot
+
+An approximation of the joint distribution of two variables (with no smoothing).
+
+```{r}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) +
+  geom_point()
+```
+
+## Contour plot
+
+An approximation of the joint distribution of two variables (with kernel smoothing).
+
+```{r}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) +
+  geom_density_2d()
+```
+
+
+
+# EDA: Numerical Summaries
+
+## Robustness
+
+Say at company $X$, there 5 employees with the following weekly income:
+
+Salary | CEO | Grunt 1 | Grunt 2 | Grunt 3 | Grunt 4
+--|--|--|--|--|--
+$ | 1000 | 20 | 21 | 30 | 40
+
+Then:
+
+* Mean $`r c(1000, 20, 21, 30, 40) %>% mean() %>% round(2)`
+* Median $`r c(1000, 20, 21, 30, 40) %>% median() %>% round(2)`
+
+A statistic is **robust** if it is insensitive to the presence of outliers (ex: 
+median, trimmed mean, IQR).
+
+#
+
+## QQ plot
+
+```{r echo = TRUE, fig.height=3, fig.width=3, fig.align="center"}
+n <- 15
+x <- rnorm(n)
+df <- data.frame(x = qnorm(1:n/n),
+                 y = sort(x))
+ggplot(df, aes(x = x, y = y)) +
+  geom_point() +
+  xlab("quantiles of Z") +
+  ylab("empirical quantiles")
+```
+
+
