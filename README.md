@@ -30,4 +30,27 @@ Math 392 | Reed College | Spring 2018
 - Reading: p. 48 - 68
 
 
+#### Week 2: Permutation Tests
+
+**Monday**
+
+- Permutation tests
+- Choice of statistics
+- Reading: p. 42 - 52
+
+**Wednesday**
+
+- Contingency tables
+    - Fisher's Exact
+    - Permutation Chi-squared
+    - Chi-squared approximation
+- Reading: p. 52 - 68
+
+**Friday**
+
+- Sampling Distributions
+- Central Limit Theorem
+- Reading: p. 77 - 92
+
+
 <!-- notes for later: bayesian model selection -->
