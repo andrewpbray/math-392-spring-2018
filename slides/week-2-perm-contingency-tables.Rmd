@@ -1,0 +1,416 @@
+---
+title: "Week Two"
+output: ioslides_presentation
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Install these packages first
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(readr)
+library(knitr)
+```
+
+
+# Permutation Test
+
+```{r, echo=FALSE}
+library(readr)
+grades <- read_csv("../data/grades.csv")
+```
+
+
+## Example: Final grades {.build}
+
+Do students
+with an even # of letters in their last name perform differently, on average, than those
+with an even # of letters in their last name?
+
+i.e. the **parameter** of interest is $\mu_E - \mu_O$
+
+We propose the following model:
+
+$$H_0: \mu_E - \mu_O = 0$$
+But we will technically conduct the test with a more specific model:
+
+$$
+H_0: F_E = F_0
+$$
+
+
+
+## Intro Stats Final Exam
+
+**Beware**: the solid line is the median, not the mean.
+
+```{r, echo=FALSE}
+library(tidyverse)
+ggplot(data=grades, aes(x=even, y=final)) + 
+  geom_boxplot() +
+  xlab("Even vs Odd") +
+  ylab("Final Exam Score")
+```
+
+
+
+## Permutation Test
+
+To describe the permutation test, we now consider
+
+* only the first 6 rows
+* and for illustrative purposes a new variable `row_index`
+
+```{r, echo=FALSE}
+# Only first 6 rows
+grades_subset <- grades %>% 
+  slice(1:6) %>% 
+  select(-major) %>% 
+  rename(even_vs_odd = even) %>% 
+  mutate(
+    row_index = 1:6,
+    final = round(final, 3)
+    ) 
+```
+
+
+
+## Intro Stats Final Exam
+
+```{r, echo=FALSE}
+grades_subset %>% kable()
+```
+
+
+
+## Observed Test Statistic
+
+Rows `c(2, 3, 4, 6)` are the students with an even # of letters in their last
+name.
+
+To compute the **observed test statisitic** i.e. the observed difference in
+sample means $\overline{x}_E - \overline{x}_O$ we run
+
+```{r eval = F}
+index <- c(2, 3, 4, 6)
+
+# mean of evens - mean of odds:
+mean(grades$final[grades$even == "even"]) - mean(grades$final[grades$even == "odd"])
+
+# or
+grades %>%
+  group_by(even) %>%
+  summarize(xbar = mean(final)) %>%
+  summarize(diff(xbar))
+```
+
+
+
+
+## Observed Data
+
+Originally, the evens are `c(2, 3, 4, 6)`
+
+```{r, echo=FALSE}
+grades_subset %>% 
+  kable()
+```
+
+
+
+## Permuted Data
+
+In this simulation, the evens are `c(1, 2, 3, 5)`
+
+```{r, echo=FALSE}
+grades_subset %>% 
+  mutate(
+    even_vs_odd = sample(even_vs_odd)
+  ) %>% 
+  kable()
+```
+
+
+
+## Permuted Data
+
+In this simulation, the evens are `c(1, 2, 3, 5)`
+
+```{r, echo=FALSE}
+grades_subset %>% 
+  mutate(
+    even_vs_odd = sample(even_vs_odd)
+  ) %>% 
+  kable()
+```
+
+
+
+## Permuted Data
+
+In this simulation, the evens are `c(1, 3, 4, 6)`
+
+```{r, echo=FALSE}
+grades_subset %>% 
+  mutate(
+    even_vs_odd = sample(even_vs_odd)
+  ) %>% 
+  kable()
+```
+
+
+
+## Permuted Data
+
+In this simulation, the evens are `c(1, 3, 4, 5)`
+
+```{r, echo=FALSE}
+grades_subset %>% 
+  mutate(
+    even_vs_odd = sample(even_vs_odd)
+  ) %>% 
+  kable()
+```
+
+
+
+## Coding the Permutation
+
+The permuting/shuffling of the `even_vs_odd` label is done by
+by taking a random sample of size $n$ from that column without replacement. 
+
+```{r}
+head(grades$even)
+permuted_even <- sample(grades$even, replace = FALSE)
+head(permuted_even)
+```
+
+
+## Activity
+
+Read the grade data in with the following:
+
+```{r eval = FALSE}
+grades <- read.csv("http://bit.ly/2Fry1lV")
+```
+
+
+1. Implement the permutation test, plot the null distribution, and estimate the p-value.
+2. Conduct a similar hypothesis test, but this time set $T(x) = m_{even} - m_{odd}$. Is the p-value approximately the same?
+
+
+## Permutation test 1
+
+Test statistic: $\bar{x}_{even} - \bar{x}_{odd}$
+
+```{r}
+it <- 5000
+xbar1_xbar2 <- rep(NA, it)
+
+for (i in 1:it) {
+  perm_even <- sample(grades$even, replace = FALSE)
+  xbar1_xbar2[i] <- mean(grades$final[perm_even == "even"]) - 
+    mean(grades$final[perm_even == "odd"])
+}
+```
+
+
+## {.build}
+
+```{r, fig.height=2.5}
+obs_stat <- mean(grades$final[grades$even == "even"]) - 
+  mean(grades$final[grades$even == "odd"])
+df <- data.frame(x = xbar1_xbar2)
+ggplot(df, aes(x = x)) +
+  geom_density() +
+  geom_vline(xintercept = obs_stat, col = "tomato")
+mean(xbar1_xbar2 > obs_stat) * 2
+```
+
+
+## Permutation test 2
+
+Test statistic: $m_{even} - m_{odd}$
+
+```{r}
+it <- 5000
+m1_m2 <- rep(NA, it)
+
+for (i in 1:it) {
+  perm_even <- sample(grades$even, replace = FALSE)
+  m1_m2[i] <- median(grades$final[perm_even == "even"]) - 
+    median(grades$final[perm_even == "odd"])
+}
+```
+
+
+## {.build}
+
+```{r, fig.height=2.5}
+obs_stat <- median(grades$final[grades$even == "even"]) - 
+  median(grades$final[grades$even == "odd"])
+df <- data.frame(x = xbar1_xbar2)
+ggplot(df, aes(x = x)) +
+  geom_density() +
+  geom_vline(xintercept = obs_stat, col = "tomato")
+mean(m1_m2 > obs_stat) * 2
+```
+
+
+# Choice of statistic
+
+## Means and medians compared
+
+```{r}
+it <- 5000
+m1_m2 <- rep(NA, it)
+xbar1_xbar2 <- rep(NA, it)
+
+for (i in 1:it) {
+  perm_even <- sample(grades$even, replace = FALSE)
+  m1_m2[i] <- median(grades$final[perm_even == "even"]) - 
+    median(grades$final[perm_even == "odd"])
+  xbar1_xbar2[i] <- mean(grades$final[perm_even == "even"]) - 
+    mean(grades$final[perm_even == "odd"])
+}
+```
+
+
+##
+
+```{r}
+df <- data.frame(x1 = m1_m2,
+                 x2 = xbar1_xbar2)
+ggplot(df, aes(x = x1, y = x2)) +
+  geom_line() + xlab("diff in m") + ylab("diff in xbar")
+```
+
+...not a strictly increasing function.
+
+
+## Means and medians compared
+
+```{r}
+it <- 5000
+xbar1 <- rep(NA, it)
+xbar1_xbar2 <- rep(NA, it)
+
+for (i in 1:it) {
+  perm_even <- sample(grades$even, replace = FALSE)
+  xbar1[i] <- mean(grades$final[perm_even == "even"])
+  xbar1_xbar2[i] <- mean(grades$final[perm_even == "even"]) - 
+    mean(grades$final[perm_even == "odd"])
+}
+```
+
+
+##
+
+```{r}
+df <- data.frame(x1 = xbar1,
+                 x2 = xbar1_xbar2)
+ggplot(df, aes(x = x1, y = x2)) +
+  geom_line() + xlab("xbar1") + ylab("diff in xbar")
+```
+
+...now a strictly increasing function.
+
+## Comparing p-values {.build}
+
+```{r}
+obs_stat_1 <- mean(grades$final[grades$even == "even"])
+mean(xbar1 > obs_stat_1) * 2
+obs_stat_2 <- mean(grades$final[grades$even == "even"]) - 
+    mean(grades$final[grades$even == "odd"])
+mean(xbar1_xbar2 > obs_stat_2) * 2
+```
+
+
+
+## Correcting p-values {.build}
+
+In estimating the p-value in a non-exhaustive permutation test, it is safer to add one to the numerator and demoninator of your empirical fraction. That is, use
+
+```{r}
+(sum(xbar1_xbar2 > obs_stat) + 1)/(length(xbar1_xbar2) + 1) * 2
+```
+
+instead of 
+
+```{r}
+mean(xbar1_xbar2 > obs_stat) * 2
+```
+
+
+# Contingency Tables
+
+## Finding a statistic {.build}
+
+```{r echo = FALSE}
+bankstudy <- data.frame(gender = rep(c("male", "female"), each = 24),
+                        promote = c(rep(c("yes", "no"), c(21, 3)),
+                                    rep(c("yes", "no"), c(14, 10)))) %>%
+  sample_frac() %>%
+  as_tibble()
+```
+
+```{r fig.height=2.5}
+(O <- table(bankstudy$gender, bankstudy$promote))
+ggplot(bankstudy, aes(x = gender, fill = promote)) +
+  geom_bar()
+```
+
+
+## Expectation under $H_0$ {.build}
+
+If promotion is independent of gender, we can compute expected counts in each cell by
+
+$$
+E_{ij} = \frac{R_i C_j}{n}
+$$
+
+```{r}
+(E <- chisq.test(O)$expected)
+```
+
+
+## Approach 1 {.build}
+
+We need to collapse these tables down to a single statistic. If we
+
+- take the difference within each cell
+- square the difference
+- divide by the expected count
+- add them up
+
+we arrive at Pearson's $\Chi^2$ statistic.
+
+```{r}
+obs_stat <- sum(((O - E)^2)/E)
+obs_stat <- chisq.test(O, correct = FALSE)$stat
+```
+
+## Permutation chi-sq
+
+```{r}
+it <- 5000
+chisqs <- rep(NA, it)
+
+for (i in 1:it) {
+  perm <- sample(bankstudy$gender, replace = FALSE)
+  tab <- table(perm, bankstudy$promote)
+  chisqs[i] <- chisq.test(tab, correct = FALSE)$stat
+}
+```
+
+
+## Permutation chi-sq {.build}
+
+```{r}
+df <- data.frame(x = chisqs)
+ggplot(df, aes(x = x)) +
+  geom_density() +
+  geom_vline(xintercept = obs_stat, col = "tomato")
+mean(chisqs > obs_stat)
+```
+
+
