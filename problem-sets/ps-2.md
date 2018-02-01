@@ -13,7 +13,7 @@ Define *X* = *Z*<sup>2</sup>, where *Z* follows the standard normal distribu
 
 ### Challenge question
 
-Explore the convergence properties of the *χ*<sup>2</sup> statistics to the *χ*<sup>2</sup> distribution when we model an individual cell count as Poisson. This exploration can take the form of analysis and/or simulation approaches.
+Explore the convergence properties of the *χ*<sup>2</sup> statistics to the *χ*<sup>2</sup> distribution when we model an individual cell count as Poisson. This exploration can take the form of analytic and/or simulation approaches.
 
 ### Notes
 

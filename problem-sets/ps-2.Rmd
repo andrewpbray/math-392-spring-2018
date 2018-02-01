@@ -28,7 +28,7 @@ Define $X = Z^2$, where $Z$ follows the standard normal distribution. Show that 
 
 ### Challenge question
 
-Explore the convergence properties of the $\chi^2$ statistics to the $\chi^2$ distribution when we model an individual cell count as Poisson. This exploration can take the form of analysis and/or simulation approaches.
+Explore the convergence properties of the $\chi^2$ statistics to the $\chi^2$ distribution when we model an individual cell count as Poisson. This exploration can take the form of analytic and/or simulation approaches.
 
 
 ### Notes
