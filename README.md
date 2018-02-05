@@ -53,4 +53,41 @@ Math 392 | Reed College | Spring 2018
 - Reading: p. 77 - 92
 
 
+#### Week 3: Sampling Distributions and the Bootstrap
+
+**Monday**
+
+- Sampling distributions
+- Choice of statistics
+- Reading: p. 77 - 92
+
+**Wednesday**
+
+- Bootstrap I
+- Reading: p. 99 - 113
+
+**Friday**
+
+- Bootstrap II
+- Reading: p. 113 - 129
+
+
+#### Week 4: Estimation
+
+**Monday**
+
+- Exam I
+- This week's problem set will be due _next_ Friday.
+
+**Wednesday**
+
+- Likelihood I
+- Reading: p. 52 - 68
+
+**Friday**
+
+- Likelihood II
+- Reading: p. 77 - 92
+
+
 <!-- notes for later: bayesian model selection -->
