@@ -1,0 +1,122 @@
+---
+title: "Week Three"
+output: ioslides_presentation
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Install these packages first
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(readr)
+library(knitr)
+```
+
+# Problem Set 2 Review
+
+## {.smaller}
+
+Find the distribution of the p-value when $H_0$ is true.
+
+```{r}
+n <- 20
+it <- 500
+obs <- rep(NA, it)
+pvals <- rep(NA, it)
+x <- rep(1:2, c(n/2, n/2))
+
+for(j in 1:it) {
+  y <- rnorm(n)
+  obs[j] <- mean(y[x == 1]) - mean(y[x == 2])
+  perm_stats <- rep(NA, it)
+  for(i in 1:it) {
+    x_perm <- sample(x)
+    perm_stats[i] <- mean(y[x_perm == 1]) - mean(y[x_perm == 2])
+  }
+  
+  pvals[j] <- (sum(perm_stats < obs[j]) + 1) / (it + 1)
+}
+```
+
+## {.smaller}
+
+```{r fig.height = 3.5}
+df <- data.frame(perm_stats, pvals)
+ggplot(df, aes(x = perm_stats)) +
+  geom_histogram()
+```
+
+## {.smaller}
+
+```{r fig.height = 3.5}
+ggplot(df, aes(x = pvals)) +
+  geom_histogram()
+```
+
+# Sampling distributions
+
+## Example 1
+
+```{r}
+n <- 200
+it <- 500
+obs <- rep(NA, it)
+x <- rep(1:2, c(n/2, n/2))
+
+for(j in 1:it) {
+  y <- rnorm(n)
+  obs[j] <- mean(y[x == 1]) - mean(y[x == 2])
+}
+```
+
+##
+
+```{r}
+df <- data.frame(obs)
+ggplot(df, aes(x = obs)) +
+  geom_density()
+```
+
+
+## Example 2
+
+```{r}
+n <- 12
+it <- 500
+obs <- rep(NA, it)
+
+for(j in 1:it) {
+  y <- runif(n)
+  obs[j] <- max(y)
+}
+```
+
+## {.build}
+
+```{r}
+fn <- function(x)
+df <- data.frame(obs)
+ggplot(df, aes(x = obs)) +
+  geom_density(lwd = 2) +
+  stat_function(fun = function(x) {12 * x ^ 11}, 
+                col = "tomato", lwd = 2)
+```
+
+
+# Large sample approximation
+
+## Sum of exponentials
+
+
+
+## Ill-behaved population
+
+```{r}
+str(gss_cat)
+```
+
+##
+
+```{r}
+ggplot(gss_cat, aes(x = ))
+```
+
