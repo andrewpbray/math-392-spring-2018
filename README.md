@@ -58,11 +58,14 @@ Math 392 | Reed College | Spring 2018
 **Monday**
 
 - Sampling distributions
-- Choice of statistics
+    + Simulation
+    + Exact
 - Reading: p. 77 - 92
 
 **Wednesday**
 
+- Sampling distributions
+    + Large Sample Approximation
 - Bootstrap I
 - Reading: p. 99 - 113
 
