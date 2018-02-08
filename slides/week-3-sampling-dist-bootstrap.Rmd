@@ -104,19 +104,137 @@ ggplot(df, aes(x = obs)) +
 
 # Large sample approximation
 
-## Sum of exponentials
-
-
-
-## Ill-behaved population
+## Average of Gammas
 
 ```{r}
-str(gss_cat)
+n <- 17
+it <- 1000
+r <- 100
+lambda <- 5
+obs <- rep(NA, it)
+
+for(j in 1:it) {
+  x <- rgamma(n, shape = r, rate = lambda)
+  obs[j] <- mean(x)
+}
 ```
 
 ##
 
 ```{r}
-ggplot(gss_cat, aes(x = ))
+df <- data.frame(x = c(obs, (obs - 20)/(2/sqrt(17))),
+                 type = rep(c("x", "z"), times = c(it, it)))
+ggplot(df, aes(x = x, col = type)) +
+  geom_density() +
+  geom_vline(xintercept = 2.45) +
+  geom_vline(xintercept = 21.9)
 ```
+
+##
+
+```{r}
+df %>%
+  filter(type == "x") %>%
+  ggplot(aes(x = x)) +
+  geom_density(col = 3) +
+  stat_function(fun = dnorm, args = list(mean = 20, sd = 2/sqrt(17)))
+```
+
+## CLT for Binomial
+
+```{r}
+n <- 30
+p <- .5
+it <- 5000
+obs <- rep(NA, it)
+
+for(j in 1:it) {
+  x <- rbinom(1, size = n, p)
+  obs[j] <- x
+}
+```
+
+##
+
+The problem with discrete distributions.
+
+```{r echo = FALSE}
+tab <- table(obs)
+df <- data.frame(x = as.integer(names(tab)),
+                 frac = tab/sum(tab))
+```
+
+```{r warning=FALSE}
+ggplot(df, aes(x = x, y = frac.Freq)) +
+  geom_histogram(stat = "identity") +
+  stat_function(fun = dnorm, args = list(mean = n*p, sd = sqrt(n*p*(1-p))))
+```
+
+
+## CLT for another Binomial
+
+```{r}
+n <- 30
+p <- .2
+it <- 5000
+obs <- rep(NA, it)
+
+for(j in 1:it) {
+  x <- rbinom(1, size = n, p)
+  obs[j] <- x
+}
+```
+
+##
+
+The problem with skewed distributions.
+
+```{r echo = FALSE}
+tab <- table(obs)
+df <- data.frame(x = as.integer(names(tab)),
+                 frac = tab/sum(tab))
+```
+
+```{r warning=FALSE}
+ggplot(df, aes(x = x, y = frac.Freq)) +
+  geom_histogram(stat = "identity") +
+  stat_function(fun = dnorm, args = list(mean = n*p, sd = sqrt(n*p*(1-p))))
+```
+
+
+## Lessons from the binomial
+
+The accuracy of the Normal approximation depends upon:
+
+- $n$
+- Whether $X$ is discrete (use "continuity correction")
+- The skew of $X$
+
+
+# The Bootstrap
+
+## Ex: return to the binomial
+
+Let $X \sim \textrm{Binom}(n = 30, p = .2)$. Here's the simulation:
+
+```{r}
+for (j in 1:it) {
+  x <- rbinom(1, size = n, p)
+  obs[j] <- x
+}
+```
+
+Here's the bootstrap from a single sample:
+
+```{r}
+x <- rbinom(n, 1, p)
+boot_stat <- rep(NA, it)
+
+for (j in 1:it) {
+  boot <- sample(x, size = n, replace = T)
+  boot_stat[j] <- sum(boot)
+}
+```
+
+
 
