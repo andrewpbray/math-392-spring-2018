@@ -20,4 +20,4 @@ set.seed(1999) # set seed for reproducibility
 
 ### Chapter 5 exercises
 
-TBA
+2, 8, 12
