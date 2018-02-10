@@ -211,6 +211,7 @@ The accuracy of the Normal approximation depends upon:
 - The skew of $X$
 
 
+
 # The Bootstrap
 
 ## Ex: return to the binomial
@@ -237,4 +238,72 @@ for (j in 1:it) {
 ```
 
 
+# Bias
+
+## Bias: case study {.build}
+
+A major study of the association between blood pressure and cardiovascular disease found:
+
+- 55 out of 3338 men with high bp died of cardiovascular disease ($\hat{p}_1 = 0.0165$)
+- 21 out of 2676 men with low bp died of cardiovascular disease ($\hat{p}_2 = 0.0078$)
+
+We are interested in estimating the *relative risk* with an estimator:
+
+$$
+RR = \theta = \frac{P(\textrm{death} \,| \,\textrm{high bp})}{P(\textrm{death}\, | \,\textrm{low bp})}
+$$
+$$
+\hat{\theta} = \frac{\hat{p}_1}{\hat{p}_2} = \frac{0.0165}{0.0078} = 2.12
+$$
+
+
+## Two sample bootstrap
+
+Procedure:
+
+1. Draw sample of size $n_1 = 3338$ with replacement from high bp group and separate sample of size $n_2 = 2676$ from low bp group.
+2. For each pair of samples, compute $\hat{p}_1$ and $\hat{p}_2$.
+3. Compute $\hat{\theta} = \frac{\hat{p}_1}{\hat{p}_2}$.
+4. Repeat 1 - 3 many times and consider distribution of $\hat{\theta}$.
+
+
+## Two sample bootstrap
+
+```{r}
+n1 <- 3338
+n2 <- 2676
+g1 <- rep(c(1, 0), c(55, n1 - 55))
+g2 <- rep(c(1, 0), c(21, n1 - 21))
+it <- 5000
+boot_RR<- rep(NA, it)
+
+for (i in 1:it) {
+  b1 <- sample(g1, size = n1, replace = TRUE)
+  b2 <- sample(g2, size = n2, replace = TRUE)
+  boot_RR[i] <- mean(b1)/mean(b2)
+}
+```
+
+## Bootstrap distribution
+
+```{r echo = FALSE}
+df <- data.frame(boot_RR)
+```
+
+```{r}
+ggplot(df, aes(x = boot_RR)) +
+  geom_histogram(fill = "white", col = "steelblue") +
+  geom_vline(xintercept = 2.12, col = "tomato") +
+  geom_vline(xintercept = mean(boot_RR), col = "green")
+```
+
+
+## Bias
+
+```{r}
+bias <- mean(boot_RR) - 2.12
+bias
+se_boot <- sd(boot_RR)
+bias/se_boot
+```
 
