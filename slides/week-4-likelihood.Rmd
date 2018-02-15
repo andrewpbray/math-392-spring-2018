@@ -1,0 +1,73 @@
+---
+title: "Week Four"
+output: ioslides_presentation
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Install these packages first
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(readr)
+library(knitr)
+```
+
+## Simulate Normal Data
+
+We simulate a random sample of 1000 Normal$(\mu=0, \sigma=5)$ IID random variables.
+
+```{r}
+n <- 1000
+x <- rnorm(n, mean = 0, sd = 5)
+```
+
+
+
+## Log-Likelihood Function
+
+The log-likelihood function can be computed with the following function:
+
+```{r}
+l <- function(x, mu, sigma){
+  sum(dnorm(x, mean = mu, sd = sigma, log = TRUE))
+}
+```
+
+We plot the log-likelihood function for $(\mu, \sigma)$ given $\vec{x}$, saving the values in `l_surface` (code hidden).
+
+```{r, echo=FALSE}
+# Define 2D domain
+mu <- seq(-1.5, 1.5, length = 500)
+sigma <- seq(4.3, 5.5, length = 500)
+
+# Compute log-likelihood
+l_surface <- matrix(0, nrow = length(mu), ncol = length(sigma))
+for(i in 1:nrow(l_surface)) {
+  for(j in 1:ncol(l_surface)) {
+    l_surface[i, j] <- l(x, mu = mu[i], sigma = sigma[j])
+  }
+}
+```
+
+## 
+
+```{r}
+library(plotly)
+plot_ly(z = ~l_surface) %>% 
+  add_surface(x = sigma, y = mu)
+```
+
+
+## MLE
+
+We compute the MLE's $(\widehat{\mu}_{\text{MLE}}, \widehat{\sigma}_{\text{MLE}})$ for $(\mu, \sigma)$:
+
+```{r}
+xbar <- sum(x)/n
+sigma_hat <- sqrt((1 / n) * sum((x - xbar) ^ 2))
+c(xbar, sigma_hat)
+```
+
+
+## Interpretation
+
+The MLE $(\widehat{\mu}_{\text{MLE}}, \widehat{\sigma}_{\text{MLE}})$ are the parameter values that best explain/fit the observed data `x`.
