@@ -71,3 +71,220 @@ c(xbar, sigma_hat)
 ## Interpretation
 
 The MLE $(\widehat{\mu}_{\text{MLE}}, \widehat{\sigma}_{\text{MLE}})$ are the parameter values that best explain/fit the observed data `x`.
+
+
+# 
+
+## Warm-up
+
+A group of students notes the production code numbers of each of their iphones as follows:
+
+```{r echo = FALSE}
+set.seed(301)
+sample(1:60000, 6)
+```
+
+Using common-sense, use this data to come up with an estimate of the total number of phones produced by Apple in this production run.
+
+
+## Visualizing Likelihood
+
+Two paradigms for visualizing a function in a computational framework:
+
+1. Connect-the-dots
+2. Direct functional representation
+
+Both require writing **functions**.
+
+
+## Functions in R {.build}
+
+```{r}
+my_exponent <- function(a, b) {
+  a^b
+}
+my_exponent(3, 2)
+```
+
+- A function is created by the `function()` function.
+- Arguments/input go in the parens.
+- Code run by function goes in braces.
+- Output goes on the final line.
+- Run the function to make it available for use.
+
+
+## Ex. Bernoulli Likelihood {.build}
+
+$$
+L(p) = p^{\sum_{i=1}^n x_i}(1 - p)^{n - \sum_{i=1}^n x_i}
+$$
+
+```{r}
+L_binom <- function(p, x) {
+  n <- length(x)
+  n_success <- sum(x)
+  p ^ n_success * (1 - p) ^ (n - n_success)
+}
+x <- c(1, 1, 0, 1, 0)
+L_binom(p = .5, x = x)
+L_binom(3/5, x = x)
+```
+
+
+## Connect-the-dots {.build}
+
+In this approach, you 
+
+1. create a discrete vector of parameter values,
+2. run it through the function to get an output vector of the same length, and
+3. create a plot by connecting the $(x, y)$ pairs.
+
+```{r}
+p_vec <- seq(from = 0, to = 1, by = .005)
+head(p_vec)
+L_vec <- L_binom(p_vec, x)
+head(L_vec)
+```
+
+
+## {.smaller}
+
+```{r}
+df <- data.frame(x = p_vec,
+                 y = L_vec)
+ggplot(df, aes(x = x, y = y)) +
+  geom_line()
+```
+
+##
+
+
+## The impact of n
+
+It's helpful to see how the likelihood responds to increasing data.
+
+```{r}
+x_big <- rep(x, 10)
+L_vec <- L_binom(p_vec, x_big)
+df <- data.frame(x = p_vec,
+                 y = L_vec)
+```
+
+
+## {.smaller}
+
+```{r}
+ggplot(df, aes(x = x, y = y)) +
+  geom_line()
+```
+
+
+## Direct function {.smaller}
+
+The second method doesn't require the discretization of the function.
+
+
+```{r}
+ggplot(data.frame(x = c(0, 1)), aes(x)) +
+  stat_function(fun = L_binom, args = list(x = x_big))
+```
+
+## Back to the Normal {.build .smaller}
+
+$$
+l(\mu, \sigma) = -\frac{n}{2}\log(2\pi) - n \log (\sigma) - \frac{1}{2 \sigma^2} \sum_{i = 1}^{n} \left(x_i - \mu\right) ^2
+$$
+
+```{r}
+l_norm <- function(mu, sigma, x) {
+  n <- length(x)
+  p1 <- -n / 2 * log(2 * pi)
+  p2 <- -n * log(sigma)
+  p3 <- -1 / (2 * sigma^2) * sum((x - mu)^2)
+  p1 + p2 + p3
+}
+l_norm_quick <- function(mu, sigma, x) {
+  sum(dnorm(x, mean = mu, sd = sigma, log = TRUE))
+}
+l_norm(0, 5, x)
+l_norm_quick(0, 5, x)
+```
+
+
+## Generate data
+
+```{r}
+x <- rnorm(100, mean = 0, sd = 5)
+```
+
+
+## Connect the dots
+
+In 2D, we have to define a grid of possible parameter values and compute the likelihood for each coordinate
+
+```{r}
+# Define 2D domain
+mu <- seq(-1.5, 1.5, length = 500)
+sigma <- seq(4, 6, length = 500)
+```
+
+```{r}
+# Compute log-likelihood
+l_surface <- matrix(0, nrow = length(mu), ncol = length(sigma))
+for(i in 1:nrow(l_surface)) {
+  for(j in 1:ncol(l_surface)) {
+    l_surface[i, j] <- l_norm(mu = mu[i], sigma = sigma[j], x)
+  }
+}
+```
+
+
+##
+
+```{r}
+library(plotly)
+plot_ly(z = ~l_surface) %>% 
+  add_surface(x = sigma, y = mu)
+```
+
+
+## MLE
+
+We compute the MLE's $(\widehat{\mu}_{\text{MLE}}, \widehat{\sigma}_{\text{MLE}})$ for $(\mu, \sigma)$:
+
+```{r}
+n <- length(x)
+xbar <- sum(x)/n
+sigma_hat <- sqrt((1 / n) * sum((x - xbar) ^ 2))
+c(xbar, sigma_hat)
+```
+
+
+##
+
+```{r}
+set.seed(301)
+x <- sample(1:20, 3)
+L_unif <- function(beta, x) {
+  n <- length(x)
+  (1 / beta) ^ n
+}
+```
+
+
+## 
+
+```{r}
+ggplot(data.frame(x = c(0, 20)), aes(x)) +
+  stat_function(fun = L_unif, args = list(x = x))
+```
+
+## 
+
+```{r}
+ggplot(data.frame(x = c(0, 20)), aes(x)) +
+  stat_function(fun = L_unif, args = list(x = x))+
+  xlim(c(max(x), 20))
+```
+
+
