@@ -1,0 +1,89 @@
+---
+title: "Week Five"
+output: ioslides_presentation
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Install these packages first
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(readr)
+library(knitr)
+```
+
+# Properties of Estimators
+
+# Bias
+
+## Simulate uniform data
+
+We simulate a random sample of 20 Unif$(\alpha=0, \beta=30)$ IID uniform variables.
+
+```{r}
+n <- 20
+x <- runif(n, min = 0, max = 30)
+2 * mean(x)
+```
+
+
+## Full simulation
+
+We simulate a many random samples of 20 Unif$(\alpha=0, \beta=30)$ IID uniform variables.
+
+```{r}
+it <- 1000
+mom <- rep(NA, it)
+
+for (i in 1:it) {
+  n <- 20
+  x <- runif(n, min = 0, max = 30)
+  mom[i] <- 2 * mean(x)
+}
+
+df <- data.frame(mom)
+mean_mom <- mean(mom)
+```
+
+
+## Sampling dist. {.smaller .build}
+
+```{r}
+library(tidyverse)
+ggplot(df, aes(x = mom)) +
+  geom_density(lwd = 1.2) +
+  geom_vline(xintercept = mean_mom, col = "steelblue", lty = 2, lwd = 1.2)
+```
+
+
+## Full simulation
+
+We also consider the MLE estimate.
+
+```{r}
+it <- 1000
+mom <- rep(NA, it)
+mle <- rep(NA, it)
+
+for (i in 1:it) {
+  n <- 20
+  x <- runif(n, min = 0, max = 30)
+  mom[i] <- 2 * mean(x)
+  mle[i] <- max(x)
+}
+
+df <- data.frame(stat = c(mom, mle),
+                 estimator = rep(c("MOM", "MLE"),
+                                 times = c(it, it)))
+mean_mom <- mean(mom)
+mean_mle <- mean(mle)
+```
+
+
+## Sampling dist. {.smaller .build}
+
+```{r}
+ggplot(df, aes(x = stat, fill = estimator)) +
+  geom_density(alpha = .3) +
+  geom_vline(xintercept = mean_mom, col = "steelblue", lty = 2, lwd = 1.2) +
+  geom_vline(xintercept = mean_mle, col = "tomato", lty = 2, lwd = 1.2)
+```
