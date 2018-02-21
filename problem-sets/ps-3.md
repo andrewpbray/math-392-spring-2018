@@ -7,4 +7,4 @@ MATH 392 Problem Set 3
 
 ### Chapter 5 exercises
 
-TBA
+2, 8, 12
