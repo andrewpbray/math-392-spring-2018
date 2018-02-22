@@ -87,3 +87,85 @@ ggplot(df, aes(x = stat, fill = estimator)) +
   geom_vline(xintercept = mean_mom, col = "steelblue", lty = 2, lwd = 1.2) +
   geom_vline(xintercept = mean_mle, col = "tomato", lty = 2, lwd = 1.2)
 ```
+
+
+# Bias correction
+
+## Bias correction
+
+```{r}
+it <- 1000
+mom <- rep(NA, it)
+mle <- rep(NA, it)
+
+for (i in 1:it) {
+  n <- 20
+  x <- runif(n, min = 0, max = 30)
+  mom[i] <- 2 * mean(x)
+  mle[i] <- ((n + 1) / n) * max(x)
+}
+
+df <- data.frame(stat = c(mom, mle),
+                 estimator = rep(c("MOM", "MLE"),
+                                 times = c(it, it)))
+mean_mom <- mean(mom)
+mean_mle <- mean(mle)
+```
+
+
+## Sampling dist. {.smaller .build}
+
+```{r}
+ggplot(df, aes(x = stat, fill = estimator)) +
+  geom_density(alpha = .3) +
+  geom_vline(xintercept = mean_mom, col = "steelblue", lty = 2, lwd = 1.2) +
+  geom_vline(xintercept = mean_mle, col = "tomato", lty = 2, lwd = 1.2)
+```
+
+
+## Variances compared
+
+```{r}
+df %>%
+  group_by(estimator) %>%
+  summarize(var = var(stat))
+```
+
+
+# Consistency
+
+## {.smaller .build}
+
+We demonstrate the consistency of
+
+$$
+\hat{\beta}_{MLE} = \frac{n+1}{n} x_{max}
+$$
+
+```{r}
+it <- 1000
+n_vec <- c(20, 40, 80, 120, 200)
+nsamps <- length(n_vec)
+mle <- rep(NA, it * nsamps)
+
+for (j in 1:nsamps) {
+  for (i in 1:it) {
+    n <- n_vec[j]
+    x <- runif(n, min = 0, max = 30)
+    mle[(j - 1) * it + i] <- ((n + 1) / n) * max(x)
+}
+}
+df <- data.frame(stat = mle,
+                 n = rep(n_vec, times = rep(it, nsamps)))
+```
+
+
+## {.build .smaller}
+
+```{r}
+ggplot(df, aes(x = n, y = stat)) +
+  geom_point() +
+  geom_hline(yintercept = 30 - .3, lty = 3) +
+  geom_hline(yintercept = 30 + .3, lty = 3)
+```
+
