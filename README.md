@@ -93,4 +93,35 @@ Math 392 | Reed College | Spring 2018
 - Reading: p. 77 - 92
 
 
+#### Week 5: Estimation, cont.
+
+**Monday**
+
+- Method of Moments
+- Properties of Estimators I
+    + Bias
+- Reading: p. 146 - 151
+
+**Wednesday**
+
+- Properties of Estimators II
+    + Efficiency
+    + Mean Squared Error
+    + Consistency
+- Reading: p. 151 - 157
+
+**Friday**
+
+- Properties of Estimators III: Large sample theory
+    + Consistency
+    + The perks of the MLE
+- Reading: p. 157 - 160
+- Problem set 5 due next Friday
+
+
+#### Week 6: Bayesian estimation
+
+
+
 <!-- notes for later: bayesian model selection -->
+<!-- notes for later: michael's bayes book -->
