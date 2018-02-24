@@ -112,9 +112,11 @@ Math 392 | Reed College | Spring 2018
 
 **Friday**
 
-- Properties of Estimators III: Large sample theory
-    + Consistency
-    + The perks of the MLE
+- Simulating from f
+    + Inverse Transform Method
+    + Rejection Sampling
+- Properties of Estimators III
+    + Consistency, cont
 - Reading: p. 157 - 160
 - Problem set 5 due next Friday
 

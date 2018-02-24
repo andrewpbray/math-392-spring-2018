@@ -169,3 +169,62 @@ ggplot(df, aes(x = n, y = stat)) +
   geom_hline(yintercept = 30 + .3, lty = 3)
 ```
 
+
+# Simulating from f
+
+## I. Inverse transform method {.smaller .build}
+
+$$
+f(x;\theta) = 2x; \quad 0 < x < 1 \\
+F(x;\theta) = x^2; \quad 0 < x < 1 \\
+$$
+
+```{r}
+hist(sqrt(runif(1000)))
+```
+
+
+## Rejection sampling A {.smaller .build}
+
+```{r}
+n <- 1000
+x <- runif(n)
+u <- runif(n, min = 0, max = 2)
+accept <- u < (2 * x)
+hist(x[accept])
+```
+
+
+## Rejection sampling plot {.smaller .build}
+
+```{r}
+n <- 1000
+x <- runif(n)
+u <- runif(n, min = 0, max = 2)
+library(tidyverse)
+df <- data.frame(x = x, 
+                 y = u, 
+                 accept = u < (2 * x))
+p <- ggplot(df, aes(x = x, y = y, col = accept)) +
+  geom_point()
+```
+
+
+## Rejection sampling plot {.smaller .build}
+
+```{r}
+p
+```
+
+
+## Rejection sampling B {.smaller .build}
+
+```{r}
+n <- 1000
+x <- runif(n)
+accept <- rbinom(n, size = 1, prob = 2 * x/2)
+hist(x[as.logical(accept)])
+```
+
+
+
