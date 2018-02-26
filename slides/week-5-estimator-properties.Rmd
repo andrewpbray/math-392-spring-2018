@@ -162,6 +162,16 @@ df <- data.frame(stat = mle,
 
 ## {.build .smaller}
 
+```{r echo = FALSE, eval = FALSE}
+library(ggridges)
+ggplot(df, aes(x = stat, y = as.factor(n))) +
+  geom_density_ridges() +
+  coord_flip() +
+  geom_hline(yintercept = 30 - .3, lty = 3) +
+  geom_hline(yintercept = 30 + .3, lty = 3) +
+  ylab("n")
+```
+
 ```{r}
 ggplot(df, aes(x = n, y = stat)) +
   geom_point() +
