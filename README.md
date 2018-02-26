@@ -121,9 +121,25 @@ Math 392 | Reed College | Spring 2018
 - Problem set 5 due next Friday
 
 
-#### Week 6: Bayesian estimation
+#### Week 6: Confidence Intervals
+
+**Monday**
+
+- Confidence Intervals via Pivots
+- Reading: p. 167 - 177
+
+**Wednesday**
+
+- Confidence Intervals via the Bootstrap
+- Reading: p. 178 - 200
+
+**Friday**
+
+- Classical Hypothesis Tests
+- Reading: p. 211 - 221
+- Problem set 6 due Friday
 
 
-
+<!-- notes for later: t-test paper -->
 <!-- notes for later: bayesian model selection -->
 <!-- notes for later: michael's bayes book -->
