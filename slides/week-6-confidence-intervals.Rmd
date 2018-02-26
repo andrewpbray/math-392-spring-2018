@@ -1,0 +1,324 @@
+---
+title: "Week Six"
+output: ioslides_presentation
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Install these packages first
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(readr)
+library(knitr)
+```
+
+# Confidence Intervals
+
+## Unknown sigma
+
+```{r eval = FALSE}
+it <- 10000
+w <- rep(NA, it)
+n <- 15
+for(i in 1:it) {
+  x <- rnorm(n, 25, 7)
+  xbar <- mean(x)
+  s <- sd(x)
+  w[i] <- (xbar - 25) / (s/sqrt(n))
+}
+qqnorm(w, pch = ".")
+abline(0, 1)
+```
+
+
+## Unknown sigma
+
+```{r echo = FALSE}
+it <- 10000
+w <- rep(NA, it)
+n <- 15
+for(i in 1:it) {
+  x <- rnorm(n, 25, 7)
+  xbar <- mean(x)
+  s <- sd(x)
+  w[i] <- (xbar - 25) / (s/sqrt(n))
+}
+qqnorm(w, pch = ".")
+abline(0, 1)
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Set seed for random number generator
+set.seed(76)
+```
+
+
+
+## t Distribution
+
+Degrees of freedom = 1
+
+```{r, echo=FALSE}
+curve(dnorm(x, mean=0, sd=1), from=-4, to=4, n=1000, xlab="t", ylab="Density f(t)", 
+      col="white", lty=2)
+curve(dt(x, df=1), from=-4, to=4, n=1000, col="black", add=TRUE)
+legend(
+  "topright",
+  bty="n",
+  legend = c("t with df=1"),
+  col = c("black"),
+  lty = c(1)
+)
+```
+
+
+
+## t Distribution
+
+Degrees of freedom = 3
+
+```{r, echo=FALSE}
+curve(dnorm(x, mean=0, sd=1), from=-4, to=4, n=1000, xlab="t", ylab="Density f(t)", 
+      col="white", lty=2)
+curve(dt(x, df=3), from=-4, to=4, n=1000, col="red", add=TRUE)
+curve(dt(x, df=1), from=-4, to=4, n=1000, col="black", add=TRUE)
+legend(
+  "topright",
+  bty="n",
+  legend = c("t with df=1", "t with df=3"),
+  col = c("black", "red"),
+  lty = c(1, 1)
+)
+```
+
+
+
+## t Distribution
+
+Degrees of freedom = 7
+
+```{r, echo=FALSE}
+curve(dnorm(x, mean=0, sd=1), from=-4, to=4, n=1000, xlab="t", ylab="Density f(t)", 
+      col="white", lty=2)
+curve(dt(x, df=7), from=-4, to=4, n=1000, col="green", add=TRUE)
+curve(dt(x, df=3), from=-4, to=4, n=1000, col="red", add=TRUE)
+curve(dt(x, df=1), from=-4, to=4, n=1000, col="black", add=TRUE)
+legend(
+  "topright",
+  bty="n",
+  legend = c("t with df=1", "t with df=3", "t with df=7"),
+  col = c("black", "red", "green"),
+  lty = c(1, 1, 1)
+)
+```
+
+
+
+## t Distribution
+
+At Degrees of freedom = $\infty$, the $t$ becomes a $Z \sim N(0,1)$
+
+```{r, echo=FALSE}
+curve(dnorm(x, mean=0, sd=1), from=-4, to=4, n=1000, xlab="t", ylab="Density f(t)", 
+      col="blue", lty=2)
+curve(dt(x, df=7), from=-4, to=4, n=1000, col="green", add=TRUE)
+curve(dt(x, df=3), from=-4, to=4, n=1000, col="red", add=TRUE)
+curve(dt(x, df=1), from=-4, to=4, n=1000, col="black", add=TRUE)
+legend(
+  "topright",
+  bty="n",
+  legend = c("t with df=1", "t with df=3", "t with df=7", "z"),
+  col = c("black", "red", "green", "blue"),
+  lty = c(1, 1, 1, 2)
+)
+```
+
+
+## Baby weights {.build}
+
+Find a 99% CI for the mean weight of baby girls born in North Carolina in 2004 (p. 175).
+
+```{r, warning=FALSE, message=FALSE, fig.width=4, fig.height=4}
+library(resampledata)
+data(NCBirths2004)
+girls <- NCBirths2004 %>%
+  filter(Gender == "Female") %>%
+  select(Weight) %>%
+  pull()
+```
+
+
+
+## Baby weights, cont. {.build}
+
+Step 1: is $X$ normal?
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE, fig.width=8, fig.height=4}
+par(mfrow=c(1,2))
+hist(girls, xlab="weight (in grams)", main="NC Girls Weights")
+qqnorm(girls)
+qqline(girls)
+```
+
+
+
+## Baby weights, cont. {.build}
+
+Form the 95% interval from the statistics.
+
+```{r}
+x_bar <- mean(girls)
+s <- sd(girls)
+n <- length(girls)
+alpha <- .05
+q1 <- qt(alpha/2, df = n - 1)
+q2 <- qt(1 - alpha/2, df = n - 1)
+LB <- x_bar - q2 * s / sqrt(n)
+UB <- x_bar - q1 * s / sqrt(n)
+c(LB, UB)
+```
+
+
+
+## Baby weights, cont. {.build}
+
+Alternatively, the canned version.
+
+```{r}
+t.test(girls, conf.level=0.95)
+```
+
+
+# Approximate Intervals
+
+
+## Skew vs Sample Size
+
+Say we have the following skewed population distribution and we are interested in
+$\overline{x}$:
+
+```{r, echo=FALSE}
+meanlog <- -5
+sdlog <- 1
+x.max <- 0.04
+breaks <- seq(0, 5, by=0.0005)
+
+x <- seq(0, x.max, by=0.0001)
+plot(x, dlnorm(x, meanlog = meanlog, sdlog=sdlog), xlab="x", ylab="",
+     xlim=c(0, x.max), type='l')
+```
+
+
+
+## Skew vs Sample Size
+
+```{r, echo=FALSE}
+n <- 2
+sim.means <- replicate(10000, mean(rlnorm(n, meanlog = meanlog, sdlog=sdlog)))
+hist(sim.means, main=paste("n = ", n, sep=""), xlab=expression(bar(x)), xlim=c(0, x.max),
+     breaks = breaks, ylim=c(0, 1300))
+# abline(v=exp(meanlog + sdlog^2/2), col="red", lwd=2)
+```
+
+
+
+## Skew vs Sample Size
+
+```{r, echo=FALSE}
+n <- 10
+sim.means <- replicate(10000, mean(rlnorm(n, meanlog = meanlog, sdlog=sdlog)))
+hist(sim.means, main=paste("n = ", n, sep=""), xlab=expression(bar(x)), xlim=c(0, x.max),
+     breaks = breaks, ylim=c(0, 1300))
+# abline(v=exp(meanlog + sdlog^2/2), col="red", lwd=2)
+```
+
+
+
+## Skew vs Sample Size
+
+```{r, echo=FALSE}
+n <- 30
+sim.means <- replicate(10000, mean(rlnorm(n, meanlog = meanlog, sdlog=sdlog)))
+hist(sim.means, main=paste("n = ", n, sep=""), xlab=expression(bar(x)), xlim=c(0, x.max),
+     breaks = breaks, ylim=c(0, 1300))
+# abline(v=exp(meanlog + sdlog^2/2), col="red", lwd=2)
+```
+
+
+
+## Skew vs Sample Size
+
+```{r, echo=FALSE}
+n <- 75
+sim.means <- replicate(10000, mean(rlnorm(n, meanlog = meanlog, sdlog=sdlog)))
+hist(sim.means, main=paste("n = ", n, sep=""), xlab=expression(bar(x)), xlim=c(0, x.max),
+     breaks = breaks, ylim=c(0, 1300))
+# abline(v=exp(meanlog + sdlog^2/2), col="red", lwd=2)
+```
+
+
+
+## Skew vs Sample Size
+
+Now say we have the following population distribution and we are interested in
+the behavior of $\overline{x}$ for sample size $n$.
+
+```{r, echo=FALSE}
+x <- seq(0, x.max, by=0.0001)
+plot(x, dunif(x, min=0.01, max=0.03), xlab="x", ylab="",
+     xlim=c(0, x.max), type='l')
+```
+
+
+
+## Skew vs Sample Size
+
+```{r, echo=FALSE}
+n <- 2
+sim.means <- replicate(10000, mean(runif(n, min=0.01, max=0.03)))
+hist(sim.means, main=paste("n = ", n, sep=""), xlab=expression(bar(x)), xlim=c(0, x.max),
+     breaks = breaks, ylim=c(0, 2700))
+# abline(v=exp(meanlog + sdlog^2/2), col="red", lwd=2)
+```
+
+
+
+## Skew vs Sample Size
+
+```{r, echo=FALSE}
+n <- 10
+sim.means <- replicate(10000, mean(runif(n, min=0.01, max=0.03)))
+hist(sim.means, main=paste("n = ", n, sep=""), xlab=expression(bar(x)), xlim=c(0, x.max),
+     breaks = breaks, ylim=c(0, 2700))
+# abline(v=exp(meanlog + sdlog^2/2), col="red", lwd=2)
+```
+
+
+
+## Skew vs Sample Size
+
+```{r, echo=FALSE}
+n <- 30
+sim.means <- replicate(10000, mean(runif(n, min=0.01, max=0.03)))
+hist(sim.means, main=paste("n = ", n, sep=""), xlab=expression(bar(x)), xlim=c(0, x.max),
+     breaks = breaks, ylim=c(0, 2700))
+# abline(v=exp(meanlog + sdlog^2/2), col="red", lwd=2)
+```
+
+
+
+## Skew vs Sample Size
+
+```{r, echo=FALSE}
+n <- 75
+sim.means <- replicate(10000, mean(runif(n, min=0.01, max=0.03)))
+hist(sim.means, main=paste("n = ", n, sep=""), xlab=expression(bar(x)), xlim=c(0, x.max),
+     breaks = breaks, ylim=c(0, 2700))
+# abline(v=exp(meanlog + sdlog^2/2), col="red", lwd=2)
+```
+
+
+## Takehome
+
+- At large sample sizes, the Normal approximation to a mean (or a standardized mean) via the CLT becomes useful for finding intervals for populations that are not well-behaved.
+- If you have only a small sample from a highly skewed populations, you are likely stuck.
