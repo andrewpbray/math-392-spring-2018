@@ -16,8 +16,10 @@ set.seed(1999) # set seed for reproducibility
 
 ### Chapter 6 exercises
 
-39, 40, TBA
+39, 40
 
+### Chapter 7 exercises
 
+3, 8, 34, TBA
 
 
