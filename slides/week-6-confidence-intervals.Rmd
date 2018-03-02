@@ -11,6 +11,185 @@ library(readr)
 library(knitr)
 ```
 
+
+# Exam Review
+
+## Simulation approach{.build}
+
+Set some population parameters.
+
+```{r}
+p1 <- .016
+p2 <- .005
+theta <- p1/p2
+theta
+```
+
+
+## Simulation approach {.build}
+
+Take a single sample. 
+
+```{r}
+set.seed(384)
+n1 <- 3338
+n2 <- 2676
+g1 <- sample(c(1, 0), size = n1, 
+             prob = c(p1, 1 - p1), replace = TRUE)
+g2 <- sample(c(1, 0), size = n2,
+             prob = c(p2, 1 - p2), replace = TRUE)
+theta_hat <- mean(g1)/mean(g2)
+theta_hat
+```
+
+
+## Simulation approach {.build}
+
+Make a single bias estimate via bootstrap.
+
+```{r}
+it <- 5000
+boot_RR<- rep(NA, it)
+for (i in 1:it) {
+  b1 <- sample(g1, size = n1, replace = TRUE)
+  b2 <- sample(g2, size = n2, replace = TRUE)
+  boot_RR[i] <- mean(b1)/mean(b2)
+}
+bias_hat <- mean(boot_RR) - theta_hat
+bias_hat
+```
+
+
+
+## {.build .smaller}
+
+```{r}
+library(tidyverse)
+df <- data.frame(boot_RR)
+ggplot(df, aes(x = boot_RR)) +
+  geom_histogram(fill = "white", col = "darkgray") +
+  geom_vline(xintercept = theta_hat, col = "tomato") +
+  geom_vline(xintercept = mean(boot_RR), col = "darkgreen") +
+  geom_vline(xintercept = theta, col = "purple")
+```
+
+
+## True bias {.build .smaller}
+
+In the sim setting, we can find the true bias:
+
+$$
+E(\hat{\theta}) - \theta
+$$
+
+Because we can learn (approximately) the first term via repeated simulation.
+
+```{r}
+theta_hats <- rep(NA, it)
+for(i in 1:it) {
+  g1 <- sample(c(1, 0), size = n1, 
+             prob = c(p1, 1 - p1), replace = TRUE)
+  g2 <- sample(c(1, 0), size = n2,
+             prob = c(p2, 1 - p2), replace = TRUE)
+  theta_hats[i] <- mean(g1)/mean(g2)
+}
+bias <- mean(theta_hats[i]) - theta 
+bias
+```
+
+
+## Sampling dist of $\widehat{bias}_{boot}$ {.build}
+
+The sampling distribution will of this statistic will tell us both its bias and its variance.
+
+To make dreams inside of dreams we need to:
+
+1. Generate a sample from the true parameters.
+2. Build up a bootstrap distribution from sample.
+3. Calculate a single $\widehat{bias}_{boot} = E(\hat{\theta}^*) - \hat{\theta}$
+4. Repeat steps 1 - 3 to get a full distribution of $\widehat{bias}_{boot}$.
+
+
+## Sampling dist of $\widehat{bias}_{boot}$ {.build}
+
+```{r cache = TRUE}
+bias_hats_a <- rep(NA, it)
+it <- 500
+for (i in 1:it) {
+  g1 <- sample(c(1, 0), size = n1, 
+             prob = c(p1, 1 - p1), replace = TRUE)
+  g2 <- sample(c(1, 0), size = n2,
+             prob = c(p2, 1 - p2), replace = TRUE)
+  theta_hat <- mean(g1)/mean(g2)
+  boot_RR<- rep(NA, it)
+  for (j in 1:it) {
+    b1 <- sample(g1, size = n1, replace = TRUE)
+    b2 <- sample(g2, size = n2, replace = TRUE)
+    boot_RR[j] <- mean(b1)/mean(b2)
+  }
+  bias_hats_a[i] <- mean(boot_RR) - theta_hat
+}
+```
+
+
+## {.build .smaller}
+
+```{r warning=FALSE}
+bias_hats_a[bias_hats_a == Inf] <- NA
+df <- data.frame(bias_hats_a)
+ggplot(df, aes(x = bias_hats_a)) +
+  geom_histogram(fill = "white", col = "darkgray") +
+  geom_vline(xintercept = mean(bias_hats_a, na.rm = TRUE), col = "darkgreen") +
+  geom_vline(xintercept = bias, col = "purple")
+```
+
+
+## Double Bootstrap
+
+```{r cache = TRUE}
+bias_hats_b <- rep(NA, it)
+for (i in 1:it) {
+  g1_boot <- sample(g1, size = n1, replace = TRUE) #first boot
+  g2_boot <- sample(g2, size = n2, replace = TRUE)
+  theta_hat <- mean(g1_boot)/mean(g2_boot)
+  boot_RR <- rep(NA, it)
+  for (j in 1:it) {
+    g1_boot_b <- sample(g1_boot, size = n1, replace = TRUE) #double boot!
+    g2_boot_b <- sample(g2_boot, size = n1, replace = TRUE)
+    boot_RR[j] <- mean(g1_boot_b)/mean(g2_boot_b)
+  }
+  bias_hats_b[i] <- mean(boot_RR) - theta_hat
+}
+```
+
+
+## {.build .smaller}
+
+```{r warning=FALSE}
+bias_hats_b[bias_hats_b == Inf] <- NA
+df <- data.frame(bias_hats_b)
+ggplot(df, aes(x = bias_hats_b)) +
+  geom_histogram(fill = "white", col = "darkgray") +
+  geom_vline(xintercept = mean(bias_hats_b, na.rm = TRUE), col = "darkgreen") +
+  geom_vline(xintercept = bias, col = "purple")
+```
+
+
+## Biases compared {.build}
+
+```{r}
+mean(bias_hats_a, na.rm = TRUE) - bias
+mean(bias_hats_b, na.rm = TRUE) - bias
+```
+
+## Variances compared {.build}
+
+```{r}
+sd(bias_hats_a, na.rm = TRUE)
+sd(bias_hats_b, na.rm = TRUE)
+```
+
+
 # Confidence Intervals
 
 ## Unknown sigma
