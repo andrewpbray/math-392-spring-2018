@@ -137,9 +137,26 @@ Math 392 | Reed College | Spring 2018
 
 - Classical Hypothesis Tests
 - Reading: p. 211 - 221
-- Problem set 6 due Friday
+
+
+#### Week 7: Tests and Power
+
+**Monday**
+
+- Errors and Power
+- Reading: p. 167 - 177
+
+**Wednesday**
+
+- Practice with Power
+- Exam II review
+
+**Friday**
+
+- Exam II
+- Problem set 6 due next Monday
 
 
 <!-- notes for later: t-test paper -->
 <!-- notes for later: bayesian model selection -->
-<!-- notes for later: michael's bayes book -->
+<!-- notes for later: michael's bayes paper -->

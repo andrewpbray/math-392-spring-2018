@@ -232,6 +232,8 @@ set.seed(76)
 ```
 
 
+#
+
 
 ## t Distribution
 
@@ -387,7 +389,7 @@ plot(x, dlnorm(x, meanlog = meanlog, sdlog=sdlog), xlab="x", ylab="",
      xlim=c(0, x.max), type='l')
 ```
 
-
+rlnorm(n meanlog = -5, sdlog = 1)
 
 ## Skew vs Sample Size
 
@@ -497,7 +499,35 @@ hist(sim.means, main=paste("n = ", n, sep=""), xlab=expression(bar(x)), xlim=c(0
 ```
 
 
+# Bootstrap t
+
+##
+
+```{r}
+n <- 30
+x <- rlnorm(n, meanlog = -5, sdlog = 1)
+s <- sd(x)
+xbar <- mean(x)
+it <- 500
+t_vec <- rep(NA, it)
+
+for (i in 1:it) {
+  x_boot <- sample(x, size = length(x), replace = TRUE)
+  
+  t_vec[i] <- (mean(x_boot) - xbar)/(sd(x_boot)/sqrt(n))
+}
+
+q1 <- quantile(t_vec, probs = .025)
+q2 <- quantile(t_vec, probs = .975)
+
+c(xbar - q2*s/sqrt(n), xbar - q1 * s/sqrt(n))
+```
+
+
 ## Takehome
+
 
 - At large sample sizes, the Normal approximation to a mean (or a standardized mean) via the CLT becomes useful for finding intervals for populations that are not well-behaved.
 - If you have only a small sample from a highly skewed populations, you are likely stuck.
+
+
