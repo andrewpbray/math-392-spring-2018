@@ -1,0 +1,77 @@
+---
+title: "Week Six"
+output: ioslides_presentation
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Install these packages first
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(readr)
+library(knitr)
+```
+
+
+# Hypothesis tests
+
+## One sample proportion test {.build}
+
+I flip a coin 7 times and get 6 heads. Is this convincing evidence that the coin
+is biased?
+
+$$
+H_0: p = .5 \quad vs. \quad H_A: p \ne .5
+$$
+
+Let $X$ be the number of heads in 6 flips of a fair coin. $X \sim \textrm{Binom}(6, .5)$.
+
+The p-value is $P(X \ge 6) = P(X = 6) + P(X = 7)$. (times two)
+
+```{r}
+(dbinom(6, 7, .5) + dbinom(7, 7, .5)) * 2
+(1 - pbinom(5, 7, .5)) * 2
+```
+
+
+## Two sample t-test {.build}
+
+Let $X \sim N(\mu_1, \sigma^2_1)$ and $Y \sim N(\mu_2, \sigma^2_2)$ and take two independent samples of size $n_1$ and $n_2$ from each. To test:
+
+$$
+H_0: \mu_1 = \mu_2 \quad vs. \quad H_A: \mu_1 \ne \mu_2
+$$
+
+form the test statistic:
+
+$$
+T = \frac{\bar{X} - \bar{Y}}{\sqrt{S^2_1/n_1 + S^2_2 / n_2}}
+$$
+
+The p-value is found by evaluating the observed $t$ in $t_{df}$.
+
+```{r eval = FALSE}
+pt(obs_t, df = n - 1) * 2
+```
+
+
+## Two sample z-test {.build}
+
+Let $X \sim \textrm{Binom}(n_1, p_1)$ and $Y \sim \textrm{Binom}(n_2, p_2)$. To test:
+
+$$
+H_0: p_1 = p_2 \quad vs. \quad H_A: p_1 \ne p_2
+$$
+
+let $\hat{p}_p = \frac{X + Y}{n_1 + n_2}$ and form the test statistic:
+
+$$
+Z = \frac{\hat{p}_1 - \hat{p}_2}{\sqrt{(\hat{p}_p(1 - \hat{p}_p)/(1/n_1 + 1/n_2))}}
+$$
+
+The p-value is found by evaluating the observed $z$ in $Z$.
+
+```{r eval = FALSE}
+pnorm(obs_z) * 2
+```
+
+
