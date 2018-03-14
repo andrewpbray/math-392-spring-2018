@@ -14,18 +14,9 @@ x <- c(47, 126, 285, 318, 142, 55, 231, 102,
 
 #### Exercise 1.1
 
-Conduct a hypothesis test using the bias-correct MLE for *β* from a Uniform distribution to see if this data is consistent with a model where there are 345 tanks. Said another way, you are assessing two competing hypotheses regarding *θ* when assuming that the series numbers, *X*, follow a uniform distribution, *X* ∼ Unif(0, *θ*).
+Conduct a hypothesis test using the bias-correct MLE for *β* from a Uniform distribution to see if this data is consistent with a model where there are 345 tanks. Said another way, you are assessing two competing hypotheses regarding *θ* when assuming that the series numbers, *X*, follow a uniform distribution, *X* ∼ Unif(0, *θ*). *H*<sub>0</sub> : *θ* = 345 vs. *H*<sub>*A*</sub> : *θ* &gt; 345.
 
-$$
-H\_0: \\theta = 345 \\\\
-H\_A: \\theta &gt; 345
-$$
-
-The test statistic that you will be using is
-
-$$
-\\hat{\\theta}\_{MLE, corr} = \\frac{n + 1}{n} X\_{max}
-$$
+The test statistic that you will be using is $\\hat{\\theta}\_{MLE, corr} = \\frac{n + 1}{n} X\_{max}$.
 
 This is a setting where you are only interested in throwing out that model if the true number exceeds 345. Note that to perform the hypothesis test, you need to find the sampling distribution of the test statistic under the null hypothesis. We have seen several approaches to finding that distribution, including simulation, permutation, large sample theory, and exact analytical derivation.
 
