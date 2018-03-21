@@ -157,6 +157,29 @@ Math 392 | Reed College | Spring 2018
 - Problem set 6 due next Monday
 
 
+#### Week 8: Linear Models
+
+**Monday**
+
+- Review Exam II
+
+**Wednesday**
+
+- Parameters for multiple variables
+    + Covariance
+    + Correlation
+- Introduction of the Linear Model
+- Reading: p. 247 - 265
+
+**Friday**
+
+- The Linear Model in high dimensions
+- The Hat Matrix
+- Reading: p. 247 - 279
+- Problem set 6 due Monday
+
+
+<!-- notes for later: 8 ways to estimate rho http://www-bcf.usc.edu/~lototsky/MATH408/SampleCorrCoef.pdf -->
 <!-- notes for later: t-test paper -->
 <!-- notes for later: bayesian model selection -->
 <!-- notes for later: michael's bayes paper -->
