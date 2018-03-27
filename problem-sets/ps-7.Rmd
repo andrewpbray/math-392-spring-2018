@@ -1,0 +1,19 @@
+---
+title: "MATH 392 Problem Set 7"
+output: 
+  github_document:
+    fig_height: 3
+    fig_width: 6
+---
+
+
+```{r, include=FALSE}
+require(tidyverse) # load package
+require(resampledata)
+options(digits=4) # print 4 decimal places only
+set.seed(1999) # set seed for reproducibility
+```
+
+### Chapter 9 Exercises
+
+4, 7, 9, 14
