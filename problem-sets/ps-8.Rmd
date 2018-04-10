@@ -26,33 +26,32 @@ You're welcome to select any values that you like for the parameters and any dis
 # set params
 B0 <- ___
 B1 <- ___
+B2 <- ___
 sigma <- ___
 
 # complete specification
 n <- ___
-epsilon <- r____()
 x <- ___
 
-# simulate ys
+# simulate ys (this part inside a for loop)
+epsilon <- r____()
 ```
 
 
-### Sampling distribution
+### Part I. Sampling distributions
 
-Use your simulator to create an MC approximation of the true sampling distribution of the estimates of $\beta_1$, $E(Y_s)$, and $Y_s$. How do these distribution compare to the analytical form in terms of center, shape, and spread?
+Use your simulator to create an MC approximation of the true sampling distribution of the estimates of $\beta_1$, $E(Y_s)$, and $Y_s$ corresponding to a fixed new observation $x_s$. How do these distribution compare to the analytical form in terms of center, shape, and spread?
 
-### A different model
+### Part II. A different model
 
 Consider two variations on the model:
 
 1. An alternate distribution of the $x$'s of your choosing.
 2. An alternate distribution for $\epsilon$ (though it still should be centered at 0).
 
-Does the inference change for the statistics investigated in the previous exercise?
+Does the inference change for the statistics investigated in the previous exercise? For this part, you should be able to recycle much of your code from the previous part.
 
-### Variance/Covariance
+### Part III. Variance/Covariance
 
 Generate a scatterplot matrix involving all pairwise relationships between the three simulated regression coefficients in the original model. To be clear, this involves generating a good number fitted betas from your simulator and plotting them. Based on a visual assessment of these plots, please characterize the joint distribution of these statistics in terms of center, shape, spread, and covariance.
-
-**Challenge problem**: If you recognize the family of this joint distribution, use your simulated fitted betas to calculate the MLEs of the parameters.
 
