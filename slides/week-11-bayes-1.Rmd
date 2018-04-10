@@ -1,0 +1,109 @@
+---
+title: "Week Eleven"
+output: ioslides_presentation
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Install these packages first
+knitr::opts_chunk$set(message = FALSE)
+library(tidyverse)
+library(readr)
+library(knitr)
+```
+
+
+# MLEs
+
+## Poisson RV {.smaller .build}
+
+Let $X \sim \textrm{Poi}(\theta)$.
+
+```{r}
+n <- 10000
+lambda <- 5
+x <- rpois(n, lambda)
+hist(x)
+```
+
+
+## Score RV {.build}
+
+Define $U = \frac{\partial}{\partial \theta} \log f(X | \theta)$.
+
+```{r}
+U <- x / lambda - 1
+hist(U)
+```
+
+
+#
+
+## Score variance {.build}
+
+```{r}
+var(U)
+- mean(-x * lambda^(-2))
+```
+
+
+#
+
+## CLT for $\bar{U}$ {.build}
+
+```{r}
+it <- 1000
+U_bar <- rep(NA, it)
+for (i in 1:it) {
+  n <- 500
+  lambda <- 5
+  x <- rpois(n, lambda)
+  U <- x / lambda - 1
+  U_bar[i] <- mean(U)
+}
+```
+
+
+## CLT for $\bar{U}$ {.build}
+
+```{r}
+hist(U_bar)
+```
+
+
+## CLT for $\bar{U}$ {.build}
+
+```{r}
+var(U_bar)
+- mean(-x * lambda^(-2)) / n
+```
+
+#
+
+## CLT for $\hat{\theta}^{MLE}$ {.build}
+
+```{r}
+it <- 1000
+MLE <- rep(NA, it)
+for (i in 1:it) {
+  n <- 500
+  lambda <- 5
+  x <- rpois(n, lambda)
+  MLE[i] <- mean(x)
+}
+```
+
+
+## CLT for $\hat{\theta}^{MLE}$ {.build}
+
+```{r}
+hist(MLE)
+```
+
+
+## CLT for $\hat{\theta}^{MLE}$ {.build}
+
+```{r}
+z <- sqrt(n * - mean(-x * lambda^(-2))) * (MLE - lambda)
+hist(z)
+```
+
