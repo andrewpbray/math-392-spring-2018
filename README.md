@@ -179,6 +179,26 @@ Math 392 | Reed College | Spring 2018
 - Problem set 6 due Monday
 
 
+
+#### Week 11: Bayes I
+
+**Monday**
+
+- Large Sample Theory for the MLE
+
+**Wednesday**
+
+- Foundations of Bayesian Statistics
+  - Discrete binomial
+  - Beta-binomial model
+- Reading: p. 316-322, (What is Bayesian Statitistics)[http://people.math.umass.edu/~lavine/whatisbayes.pdf] - Lavine
+
+
+**Friday**
+
+- Reading: 
+
+
 <!-- notes for later: 8 ways to estimate rho http://www-bcf.usc.edu/~lototsky/MATH408/SampleCorrCoef.pdf -->
 <!-- notes for later: t-test paper -->
 <!-- notes for later: bayesian model selection -->
