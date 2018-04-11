@@ -107,3 +107,9 @@ z <- sqrt(n * - mean(-x * lambda^(-2))) * (MLE - lambda)
 hist(z)
 ```
 
+
+
+# Bayes
+
+
+
