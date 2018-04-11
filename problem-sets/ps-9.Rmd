@@ -1,0 +1,11 @@
+---
+title: "MATH 392 Problem Set 9"
+output: 
+  github_document:
+    fig_height: 3
+    fig_width: 6
+---
+
+### Chapter 10 Exercises
+
+1, 5, 8, 11, 15, 17
