@@ -15,9 +15,12 @@ We meet for lecture MWF 3:10 - 4 pm in Eliot 207. Occasional class periods will 
 Mathematical Statistics with Resampling and R  
 Chihara and Hesterberg
 
-Optional suggested readings:
+Additional material will be drawn from:
 
 - Mathematical Statistics and Data Analysis by John Rice 
+- Statistical Inference by Casella and Berger
+- Mathematical Statistics Notes by Albyn Jones
+- Bayesian Data Analysis by Gelman et al.
 - Computer Age Statistical Inference by Brad Efron and Trevor Hastie
 
 ### Problem sets
