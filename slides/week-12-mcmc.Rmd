@@ -57,11 +57,13 @@ $$
 p(\eta) = \,?
 $$
 
-# Monte Carlo Markov Chain
 
-## Gibbs Sampling
 
-```{r eval = FALSE}
+# MCMC: Gibbs Sampling
+
+## Changepoint problem
+
+```{r echo = FALSE}
 library(tidyverse)
 n <- 60
 m <- 38
@@ -76,46 +78,68 @@ df <- data.frame(t = 1:n,
                  rate = rep(c("mu", "lambda"), c(m, n - m)))
 ggplot(df, aes(x = t, y = y)) +
   geom_point() + geom_line()
+```
+
+
+##
+
+```{r echo = FALSE}
+# Y-twiddle
 ggplot(df, aes(x = y)) +
   geom_bar()
+# Separate Ys
 ggplot(df, aes(x = y, fill = rate)) +
   geom_bar(position = "dodge2")
 
-
+# Parameterize priors
 alpha <- 10
 beta <- 4
+ggplot(data.frame(x = c(0, 12)), aes(x)) +
+  stat_function(fun = dgamma, 
+                args = list(shape = alpha, rate = beta))
+
 nu <- 8
 phi <- 2
+ggplot(data.frame(x = c(0, 12)), aes(x)) +
+  stat_function(fun = dgamma, 
+                args = list(shape = nu, rate = phi))
 
 
-it <- 5000
+
+# Gibbs sampler
+it <- 10000
 post_samples <- matrix(rep(NA, it * 3), ncol = 3)
 colnames(post_samples) <- c("mu", "lambda", "m")
 
-m_i <- n/2 # initialize m
+m_i <- 10 # initialize m
 for (i in 1:it) {
-  mu_i     <- rgamma(1, alpha + sum(y[1:m_i]), beta + m_i)
-  lambda_i <- rgamma(1, nu + sum(y[(m_i+1):n]), phi + (n - m_i))
-  joint_vec <- rep(NA, n - 1)
+  mu_i      <- rgamma(1, alpha + sum(y[1:m_i]), beta + m_i)
+  lambda_i  <- rgamma(1, nu + sum(y[(m_i+1):n]), phi + (n - m_i))
+  m_vec <- rep(NA, n - 1)
   for (j in 1:(n - 1)) {
-    joint_vec[j] <-  mu_i^(alpha + sum(y[1:j]) - 1) *
+    m_vec[j] <-  mu_i^(alpha + sum(y[1:j]) - 1) *
       exp(-(beta + j) * mu_i) *
       lambda_i^(nu + sum(y[(j+1):n]) - 1) *
       exp(-(phi + n - j) * lambda_i)
   }
-  p <- joint_vec/sum(joint_vec)
+  p <- m_vec/sum(m_vec)
   m_i <- sample(1:(n - 1), size = 1, prob = p)
   post_samples[i, "mu"]     <- mu_i
   post_samples[i, "lambda"] <- lambda_i
   post_samples[i, "m"]      <- m_i
 }
 
-joint_posterior <- data.frame(post_samples)
-ggplot(joint_posterior, aes(x = mu)) +
+joint_posterior <- data.frame(post_samples,
+                              it = 1:it)
+ggplot(joint_posterior, aes(x = it, y = m)) +
+  geom_line()
+joint_post <- joint_posterior %>%
+  slice(seq(from = 5000, to = it, by = 5))
+ggplot(joint_post, aes(x = mu)) +
   geom_density()
-ggplot(joint_posterior, aes(x = lambda)) +
+ggplot(joint_post, aes(x = lambda)) +
   geom_density()
-ggplot(joint_posterior, aes(x = m)) +
+ggplot(joint_post, aes(x = m)) +
   geom_bar()
 
 df <- data.frame(rates = c(post_samples[, "mu"], post_samples[, "lambda"]),
