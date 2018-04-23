@@ -1,0 +1,156 @@
+---
+title: "Simulating Correlated Data"
+author: "Jay Lee"
+date: "4/12/2018"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(GGally)
+library(ggplot2)
+library(mvtnorm)
+library(MASS)
+```
+## Big Question
+Can we simulate arbitrary correlated data? That is, in addition to simulating multiple correlated normal random variables, can we simulate for other distributions?
+
+## First Question
+How does `rvnorm` actually work? How do we simulate correlated multivariate normal data?
+Say we want to simulate some random vector (a vector of random variables) $Y$ of length $n$ such that
+\[
+Y \sim \mathcal{N}\left( \mu, \Sigma\right).
+\]
+Then, let $Z \sim \mathcal{N}\left( 0, I_n \right)$. If we find some $C$ such that $\Sigma = CC'$, then, $Y = \mu + CZ$. That is, if we can simulate uncorrelated normal random variables, we can simulate correlated normal random variables. We can verify that this construction for $Y$ has the properties we want:
+--------
+a. Expectation.
+\[
+E(Y) = E(\mu + CZ) = E(\mu) + E(C)E(Z) = \mu.
+\]
+(Notes: $\mu$ is a constant, $C$ and $Z$ are independent, and $E(Z) = 0$.)
+b. Variance.
+\[
+V(Y) = V(\mu + CZ) = V(\mu) + C \cdot V(Z) \cdot C' = CC' = \Sigma.
+\]
+c. Multivariate normally distributed. By definition, a random vector is multivariate normally distributed if any linear combination of its components is normally distributed. Since $Z$ is multivariate normally distributed and $C$ is a constant matrix, $CZ$ is a vector of linear combinations of the components of $Z$, and $C$ is multivariate normally distributed. Since $Y = \mu + CZ$ and $\mu$ is a constant vector, $Y \sim \mathcal{N}\left( \mu, \Sigma\right)$.
+
+## Methods for finding $C$
+* Eigenvalue decomposition
+* Singular value decomposition
+* Cholesky decomposition (fastest, by a little)
+
+## Simulating correlated variables: the inverse CDF
+```{r}
+mu <- c(5,4,3,2,1)
+Sigma <- matrix(c(1 ,.8,.6,.4,.2,
+                  .8, 2,.8,.6,.4,
+                  .6,.8, 3,.8,.6,
+                  .4,.6,.8, 4,.8,
+                  .2,.4,.6,.8, 5), ncol = 5)
+rawvars <- data.frame(mvrnorm(10000, mu, Sigma, empirical = TRUE))
+cor(rawvars)
+```
+
+## Make correlated poisson variable
+```{r}
+# these are all normalized, they're probabilities
+pvars <- data.frame(X1 = pnorm(rawvars$X1, mean = mu[1], sd = sqrt(Sigma[1,1])),
+                    X2 = pnorm(rawvars$X2, mean = mu[2], sd = sqrt(Sigma[2,2])),
+                    X3 = pnorm(rawvars$X3, mean = mu[3], sd = sqrt(Sigma[3,3])),
+                    X4 = pnorm(rawvars$X4, mean = mu[4], sd = sqrt(Sigma[4,4])),
+                    X5 = pnorm(rawvars$X5, mean = mu[5], sd = sqrt(Sigma[5,5])))
+pvarmat <- data.matrix(pvars)
+poisvars <- data.frame(qpois(pvarmat, 5))
+(pois_error <- max(abs(zapsmall(cor(rawvars) - cor(poisvars), digits = 3))))
+```
+
+Repeated for binomial, exponential, and uniform.
+
+```{r echo = FALSE}
+binomvars <- data.frame(qbinom(1-pvarmat, 3, .25))
+binom_error <- max(abs(zapsmall(cor(rawvars) - cor(binomvars), digits = 3)))
+expvars <- data.frame(qexp(pvarmat))
+exp_error <- max(abs(zapsmall(cor(rawvars) - cor(expvars), digits = 3)))
+unifvars <- data.frame(qnorm(pvarmat))
+unif_error <- max(abs(zapsmall(cor(rawvars) - cor(unifvars), digits = 3)))
+```
+
+-----
+
+```{r}
+cor(rawvars)
+c(pois_error, binom_error, exp_error, unif_error)
+```
+
+Each of these has correlation matrix very similar to the correlation matrix of the original. In general you can't transitively apply correlation, i.e. $X$ correlated to $Y$ and $Y$ correlated to $Z$ doesn't give $X$ correlated to $Z$, so this isn't accurate if you apply it more than once.
+
+## Simulating correlated to known vector
+
+```{r}
+# our initial data
+x1 <- runif(100, 5, 15)
+```
+
+```{r echo = FALSE}
+#initialize normal values, later transformed
+x234 <- scale(matrix(runif(300), ncol=3 ))
+# put all into 1 matrix for simplicity
+x1234 <- cbind(scale(x1),x234)
+# find the current correlation matrix
+c1 <- var(x1234)
+# cholesky decomposition to get independence
+chol1 <- solve(chol(c1))
+newx <-  x1234 %*% chol1 
+# check that we have independence and x1 unchanged
+zapsmall(cor(newx))
+#all.equal( x1234[,1], newx[,1] )
+```
+```{r}
+newc <- matrix(c(1  , 0.8, 0.6, 0.4, #this is our desired correlation matrix
+                 0.8, 1  , 0.8, 0.6,
+                 0.6, 0.8, 1  , 0.8,
+                 0.4, 0.6, 0.8, 1  ), ncol=4 )
+eigen(newc)$values # check that it is positive definite
+```
+```{r echo = FALSE}
+chol2 <- chol(newc)
+finalx <- newx %*% chol2 * sd(x1) + mean(x1)
+# verify success
+mean(x1)
+colMeans(finalx)
+sd(x1)
+apply(finalx, 2, sd)
+zapsmall(cor(finalx))
+all.equal(x1, finalx[,1])
+```
+```{r}
+# verify success
+mean(x1)
+colMeans(finalx)
+sd(x1)
+apply(finalx, 2, sd)
+cor(finalx)
+all.equal(x1, finalx[,1])
+```
+
+-------
+
+```{r}
+ggpairs(data.frame(finalx))
+```
+
+## Pros and cons
+
+First method
+* Adds some noise (shrinkage) in the correlation
+* Requires a normal distribution to initialize
+* Guarantees the (output) distributions you want in your correlated variables
+
+Second method
+* Maintains correlations much better
+* Allows any initial distribution (or vector)
+* Everything start to drift towards normality (Central Limit Theorem?)
+
+## Sources
+* [Motivation for `mvnorm`](https://math.stackexchange.com/questions/446093/generate-correlated-normal-random-variables)
+* [Inverse CDF method](https://www.r-bloggers.com/easily-generate-correlated-variables-from-any-distribution-without-copulas/)
+* [Method from given vector](https://stat.ethz.ch/pipermail/r-help/2007-April/128925.html)
