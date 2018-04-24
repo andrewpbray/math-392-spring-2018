@@ -3,7 +3,10 @@ title: "The Changepoint Problem"
 subtitle: "An implementation of a Gibbs Sampler"
 author: "Math 392"
 output:
-  rmarkdown::pdf_document
+  rmarkdown::html_document:
+    theme: yeti
+    toc: true
+    toc_float: true
 ---
 
 ## Preliminaries
@@ -80,7 +83,7 @@ p2 <- ggplot(data.frame(x = c(0, 10)), aes(x)) +
 grid.arrange(p1, p2, ncol = 1)
 ```
 
-The third parameter that governs this process is $m$, the changepoint. If assume that data set has at least one observation from each Poisson distribution, then $m$ can take integer values between 1 and $n - 1$. Any discrete distribution on those integers will work. We'll express our ambivalence concerning its value by specifying a flat prior.
+The third parameter that governs this process is $m$, the changepoint. If we assume that the data set has at least one observation from each Poisson distribution, then $m$ can take integer values between 1 and $n - 1$. Any discrete distribution on those integers will work. We'll express our ambivalence concerning its value by specifying a flat prior.
 
 $$
 m \sim \textrm{Unif}\{1, 2, \ldots, n - 1\}
@@ -127,7 +130,7 @@ It looks like a mess right now, but it's a useful formulation to have on hand wh
 
 ## III. Joint Posterior
 
-To move from the full joint to the joint posterior distribution of just the parameters given the data, we'll use the following formulation.
+To move from the full joint to the joint posterior distribution of just the parameters given the data, we'll use the following definition of conditional probability.
 
 \begin{align}
 f(\mu, \lambda, m \,|\, Y_\mu, Y_\lambda) = \frac{f(Y_\mu, Y_\lambda, \mu, \lambda, m)}{f(Y_\mu, Y_\lambda)}
@@ -146,7 +149,7 @@ f(\mu, \lambda, m \,|\, Y_\mu, Y_\lambda) &= c \,f(Y_\mu, Y_\lambda, \mu, \lambd
 &= c \,\prod_{i = 1}^{m} \left( \frac{\mu^{Y_i}e^{\mu}}{Y_i!} \right)
 \prod_{j = m+1}^{n} \left( \frac{\lambda^{Y_j}e^{\lambda}}{Y_j!} \right)
 \frac{\beta^\alpha}{\Gamma(\alpha)}\mu^{\alpha - 1}e^{-\beta \mu}
-\frac{\phi^\nu}{\Gamma(\nu)}\lambda^{\nu - 1}e^{-\phi \lambda} \\
+\frac{\phi^\nu}{\Gamma(\nu)}\lambda^{\nu - 1}e^{-\phi \lambda} \frac{1}{n - 1} \\
 &= c \,\prod_{i = 1}^{m} \left( \mu^{Y_i}e^{\mu} \right)
 \prod_{j = m+1}^{n} \left( \lambda^{Y_j}e^{\lambda} \right)
 \mu^{\alpha - 1}e^{-\beta \mu}
@@ -168,7 +171,7 @@ The key to implementing a Gibbs Sampler is to secure the conditional distributio
 
 \begin{align}
 f(m \,|\, \mu, \lambda, Y_\mu, Y_\lambda) &= \frac{f(\mu, \lambda, m \,|\, Y_\mu, Y_\lambda)}{f(\mu, \lambda \,|\, Y_\mu, Y_\lambda)} \\
-&= \frac{c \,  \mu^{\alpha + \sum_{i=1}^{m}Y_i - 1}e^{-(\beta + m) \mu}\lambda^{\nu + \sum_{j=m+1}^{n}Y_j - 1}e^{-(\phi + n - m)\lambda}}
+&= \frac{c \,  \mu^{\alpha + \sum_{i=1}^{m}Y_i - 1}e^{-(\beta + m) \mu}\lambda^{\nu + \sum_{j=m+1}^{n}Y_j - 1}e^{-(\phi + n - m)\lambda}}\frac{1}{n - 1}
 {\sum_{k = 1}^{n - 1} c \,  \mu^{\alpha + \sum_{i=1}^{k}Y_i - 1}e^{-(\beta + k) \mu}\lambda^{\nu + \sum_{j=k+1}^{n}Y_j - 1}e^{-(\phi + n - k)\lambda}}
 \end{align}
 
