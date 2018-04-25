@@ -119,8 +119,8 @@ The last three terms are fine to leave as marginal probabilities since they are 
 
 \begin{align}
 f(Y_\mu, Y_\lambda, \mu, \lambda, m) &= 
-\prod_{i = 1}^{m} \left( \frac{\mu^{Y_i}e^{\mu}}{Y_i!} \right)
-\prod_{j = m+1}^{n} \left( \frac{\lambda^{Y_j}e^{\lambda}}{Y_j!} \right)
+\prod_{i = 1}^{m} \left( \frac{\mu^{Y_i}e^{-\mu}}{Y_i!} \right)
+\prod_{j = m+1}^{n} \left( \frac{\lambda^{Y_j}e^{-\lambda}}{Y_j!} \right)
 \frac{\beta^\alpha}{\Gamma(\alpha)}\mu^{\alpha - 1}e^{-\beta \mu}
 \frac{\phi^\nu}{\Gamma(\nu)}\lambda^{\nu - 1}e^{-\phi \lambda}
 \end{align}
@@ -146,16 +146,16 @@ To get an expression that is clearly a function of the parameters, let's expand 
 
 \begin{align}
 f(\mu, \lambda, m \,|\, Y_\mu, Y_\lambda) &= c \,f(Y_\mu, Y_\lambda, \mu, \lambda, m) \\
-&= c \,\prod_{i = 1}^{m} \left( \frac{\mu^{Y_i}e^{\mu}}{Y_i!} \right)
-\prod_{j = m+1}^{n} \left( \frac{\lambda^{Y_j}e^{\lambda}}{Y_j!} \right)
+&= c \,\prod_{i = 1}^{m} \left( \frac{\mu^{Y_i}e^{-\mu}}{Y_i!} \right)
+\prod_{j = m+1}^{n} \left( \frac{\lambda^{Y_j}e^{-\lambda}}{Y_j!} \right)
 \frac{\beta^\alpha}{\Gamma(\alpha)}\mu^{\alpha - 1}e^{-\beta \mu}
 \frac{\phi^\nu}{\Gamma(\nu)}\lambda^{\nu - 1}e^{-\phi \lambda} \frac{1}{n - 1} \\
-&= c \,\prod_{i = 1}^{m} \left( \mu^{Y_i}e^{\mu} \right)
-\prod_{j = m+1}^{n} \left( \lambda^{Y_j}e^{\lambda} \right)
+&= c \,\prod_{i = 1}^{m} \left( \mu^{Y_i}e^{-\mu} \right)
+\prod_{j = m+1}^{n} \left( \lambda^{Y_j}e^{-\lambda} \right)
 \mu^{\alpha - 1}e^{-\beta \mu}
 \lambda^{\nu - 1}e^{-\phi \lambda} \\
-&= c \,  \mu^{\sum_{i=1}^{m}Y_i}e^{m\mu} 
-\lambda^{\sum_{j=m+1}^{n}Y_j}e^{(n - m)\lambda}
+&= c \,  \mu^{\sum_{i=1}^{m}Y_i}e^{-m\mu} 
+\lambda^{\sum_{j=m+1}^{n}Y_j}e^{-(n - m)\lambda}
 \mu^{\alpha - 1}e^{-\beta \mu}
 \lambda^{\nu - 1}e^{-\phi \lambda} \\
 &= c \,  \mu^{\alpha + \sum_{i=1}^{m}Y_i - 1}e^{-(\beta + m) \mu} 
@@ -171,7 +171,7 @@ The key to implementing a Gibbs Sampler is to secure the conditional distributio
 
 \begin{align}
 f(m \,|\, \mu, \lambda, Y_\mu, Y_\lambda) &= \frac{f(\mu, \lambda, m \,|\, Y_\mu, Y_\lambda)}{f(\mu, \lambda \,|\, Y_\mu, Y_\lambda)} \\
-&= \frac{c \,  \mu^{\alpha + \sum_{i=1}^{m}Y_i - 1}e^{-(\beta + m) \mu}\lambda^{\nu + \sum_{j=m+1}^{n}Y_j - 1}e^{-(\phi + n - m)\lambda}}\frac{1}{n - 1}
+&= \frac{c \,  \mu^{\alpha + \sum_{i=1}^{m}Y_i - 1}e^{-(\beta + m) \mu}\lambda^{\nu + \sum_{j=m+1}^{n}Y_j - 1}e^{-(\phi + n - m)\lambda}}
 {\sum_{k = 1}^{n - 1} c \,  \mu^{\alpha + \sum_{i=1}^{k}Y_i - 1}e^{-(\beta + k) \mu}\lambda^{\nu + \sum_{j=k+1}^{n}Y_j - 1}e^{-(\phi + n - k)\lambda}}
 \end{align}
 

@@ -262,8 +262,8 @@ f(Y_\mu, Y_\lambda, \mu, \lambda, m) = f(Y_\mu\,|\,\mu, m)f(Y_\lambda\,|\,\lambd
 \]</span> The last three terms are fine to leave as marginal probabilities since they are independent of one another and of the conditional distributions of data. Next we substitute in the respective density functions, keeping in mind that the data are vectors, so we’ll use the product notation shorthand.</p>
 <span class="math display">\[\begin{align}
 f(Y_\mu, Y_\lambda, \mu, \lambda, m) &amp;= 
-\prod_{i = 1}^{m} \left( \frac{\mu^{Y_i}e^{\mu}}{Y_i!} \right)
-\prod_{j = m+1}^{n} \left( \frac{\lambda^{Y_j}e^{\lambda}}{Y_j!} \right)
+\prod_{i = 1}^{m} \left( \frac{\mu^{Y_i}e^{-\mu}}{Y_i!} \right)
+\prod_{j = m+1}^{n} \left( \frac{\lambda^{Y_j}e^{-\lambda}}{Y_j!} \right)
 \frac{\beta^\alpha}{\Gamma(\alpha)}\mu^{\alpha - 1}e^{-\beta \mu}
 \frac{\phi^\nu}{\Gamma(\nu)}\lambda^{\nu - 1}e^{-\phi \lambda}
 \end{align}\]</span>
@@ -271,7 +271,7 @@ f(Y_\mu, Y_\lambda, \mu, \lambda, m) &amp;=
 </div>
 <div id="iii.-joint-posterior" class="section level2">
 <h2>III. Joint Posterior</h2>
-<p>To move from the full joint to the joint posterior distribution of just the parameters given the data, we’ll use the following formulation.</p>
+<p>To move from the full joint to the joint posterior distribution of just the parameters given the data, we’ll use the following definition of conditional probability.</p>
 <span class="math display">\[\begin{align}
 f(\mu, \lambda, m \,|\, Y_\mu, Y_\lambda) = \frac{f(Y_\mu, Y_\lambda, \mu, \lambda, m)}{f(Y_\mu, Y_\lambda)}
 \end{align}\]</span>
@@ -282,16 +282,16 @@ f(\mu, \lambda, m \,|\, Y_\mu, Y_\lambda) = c \,f(Y_\mu, Y_\lambda, \mu, \lambda
 <p>To get an expression that is clearly a function of the parameters, let’s expand out the term on the right but move any terms that aren’t a function of <span class="math inline">\(\mu\)</span>, <span class="math inline">\(\lambda\)</span>, or <span class="math inline">\(m\)</span> into <span class="math inline">\(c\)</span> (which is now a different constant but we’ll still call it <span class="math inline">\(c\)</span>).</p>
 <span class="math display">\[\begin{align}
 f(\mu, \lambda, m \,|\, Y_\mu, Y_\lambda) &amp;= c \,f(Y_\mu, Y_\lambda, \mu, \lambda, m) \\
-&amp;= c \,\prod_{i = 1}^{m} \left( \frac{\mu^{Y_i}e^{\mu}}{Y_i!} \right)
-\prod_{j = m+1}^{n} \left( \frac{\lambda^{Y_j}e^{\lambda}}{Y_j!} \right)
+&amp;= c \,\prod_{i = 1}^{m} \left( \frac{\mu^{Y_i}e^{-\mu}}{Y_i!} \right)
+\prod_{j = m+1}^{n} \left( \frac{\lambda^{Y_j}e^{-\lambda}}{Y_j!} \right)
 \frac{\beta^\alpha}{\Gamma(\alpha)}\mu^{\alpha - 1}e^{-\beta \mu}
 \frac{\phi^\nu}{\Gamma(\nu)}\lambda^{\nu - 1}e^{-\phi \lambda} \frac{1}{n - 1} \\
-&amp;= c \,\prod_{i = 1}^{m} \left( \mu^{Y_i}e^{\mu} \right)
-\prod_{j = m+1}^{n} \left( \lambda^{Y_j}e^{\lambda} \right)
+&amp;= c \,\prod_{i = 1}^{m} \left( \mu^{Y_i}e^{-\mu} \right)
+\prod_{j = m+1}^{n} \left( \lambda^{Y_j}e^{-\lambda} \right)
 \mu^{\alpha - 1}e^{-\beta \mu}
 \lambda^{\nu - 1}e^{-\phi \lambda} \\
-&amp;= c \,  \mu^{\sum_{i=1}^{m}Y_i}e^{m\mu} 
-\lambda^{\sum_{j=m+1}^{n}Y_j}e^{(n - m)\lambda}
+&amp;= c \,  \mu^{\sum_{i=1}^{m}Y_i}e^{-m\mu} 
+\lambda^{\sum_{j=m+1}^{n}Y_j}e^{-(n - m)\lambda}
 \mu^{\alpha - 1}e^{-\beta \mu}
 \lambda^{\nu - 1}e^{-\phi \lambda} \\
 &amp;= c \,  \mu^{\alpha + \sum_{i=1}^{m}Y_i - 1}e^{-(\beta + m) \mu} 
