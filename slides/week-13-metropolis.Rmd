@@ -1,0 +1,537 @@
+---
+title: "Week 13"
+output: ioslides_presentation
+---
+
+
+# Metropolis Algorithm
+
+
+## Target Distribution
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+library(tidyverse)
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+## Proposal Distribution
+
+```{r echo = FALSE}
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  stat_function(fun = dnorm, args = list(1.2, .3), lty = 3) +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+## Metropolis Algorithm
+
+1. Initialize $\theta^0$
+2. Sample a proposal from $J(\theta^* \, | \, \theta^0)$
+3. Calculate the ratio of densities $$r = \frac{f(\theta^*)}{f(\theta^0)}$$
+4. Set $\theta_1 = \theta*$ with probability min$(r, 1)$ and to $\theta_0$ otherwise.
+
+
+## Initialize $\theta^0$ {.build}
+
+```{r}
+theta_0 <- 1.2
+```
+
+```{r echo = FALSE}
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  stat_function(fun = dnorm, args = list(1.2, .3), lty = 3) +
+  geom_vline(xintercept = theta_0, col = "steelblue") +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+## A modest proposal {.build}
+
+```{r echo = FALSE}
+set.seed(18)
+```
+
+```{r}
+(theta_star <- rnorm(1, theta_0, .3))
+```
+
+```{r echo = FALSE}
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  stat_function(fun = dnorm, args = list(1.2, .3), lty = 3) +
+  geom_vline(xintercept = theta_0, col = "steelblue") +
+  geom_vline(xintercept = theta_star, col = "orchid") +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+## Calculate the ratio {.build}
+
+```{r}
+(r <- dgamma(theta_star, 2, 3)/dgamma(theta_0, 2, 3))
+```
+
+```{r echo = FALSE}
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  stat_function(fun = dnorm, args = list(1.2, .3), lty = 3) +
+  geom_vline(xintercept = theta_0, col = "steelblue") +
+  geom_vline(xintercept = theta_star, col = "orchid") +
+  geom_hline(yintercept = dgamma(theta_0, 2, 3), col = "steelblue", lty = 2) +
+  geom_hline(yintercept = dgamma(theta_star, 2, 3), col = "orchid", lty = 2) +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+## Accept?
+
+```{r}
+runif(1) < min(r, 1)
+```
+
+
+## A second proposal {.build}
+
+```{r echo = FALSE}
+set.seed(181)
+```
+
+```{r}
+(theta_star <- rnorm(1, theta_0, .3))
+```
+
+```{r echo = FALSE}
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  stat_function(fun = dnorm, args = list(1.2, .3), lty = 3) +
+  geom_vline(xintercept = theta_0, col = "steelblue") +
+  geom_vline(xintercept = theta_star, col = "orchid") +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+## Calculate the ratio {.build}
+
+```{r}
+(r <- dgamma(theta_star, 2, 3)/dgamma(theta_0, 2, 3))
+```
+
+```{r echo = FALSE}
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  stat_function(fun = dnorm, args = list(1.2, .3), lty = 3) +
+  geom_vline(xintercept = theta_0, col = "steelblue") +
+  geom_vline(xintercept = theta_star, col = "orchid") +
+  geom_hline(yintercept = dgamma(theta_0, 2, 3), col = "steelblue", lty = 2) +
+  geom_hline(yintercept = dgamma(theta_star, 2, 3), col = "orchid", lty = 2) +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+## Accept?
+
+```{r}
+runif(1) < min(r, 1)
+```
+
+
+## Iterated algorithm
+
+```{r}
+theta_0 <- 1.2
+tau <- .3
+it <- 10000
+chain <- rep(NA, it + 1)
+chain[1] <- theta_0
+for (i in 1:it) {
+  proposal <- rnorm(1, chain[i], tau)
+  p_move <- min(dgamma(proposal, 2, 3)/dgamma(chain[i], 2, 3), 1)
+  chain[i + 1] <- ifelse(runif(1) < p_move,
+                         proposal,
+                         chain[i])
+}
+head(chain)
+```
+
+
+## The burn-in period
+
+```{r echo = FALSE}
+data.frame(chain, index = 1:(it + 1)) %>%
+  slice(1:200) %>%
+  ggplot(aes(x = chain, y = index)) +
+  geom_path(col = "steelblue") +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+## Distribution of samples
+
+```{r echo = FALSE}
+burn_in <- 5000
+data.frame(chain, index = 1:(it + 1)) %>%
+  filter(index > burn_in) %>%
+  ggplot(aes(x = chain)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  geom_density(col = "steelblue") +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+## Acceptance rate {.build}
+
+```{r}
+(acceptance <- 1 - mean(duplicated(chain[-(1:burn_in)])))
+```
+
+- Recommended acceptance rate is 30%-40% - why?
+- How can we adjust the acceptance rate?
+
+
+## High variance jump
+
+```{r echo = FALSE}
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  stat_function(fun = dnorm, args = list(1.2, 1), lty = 3) +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+## New MC chain
+
+```{r}
+theta_0 <- 1.2
+tau <- 1
+it <- 10000
+chain <- rep(NA, it + 1)
+chain[1] <- theta_0
+for (i in 1:it) {
+  proposal <- rnorm(1, chain[i], tau)
+  p_move <- min(dgamma(proposal, 2, 3)/dgamma(chain[i], 2, 3), 1)
+  chain[i + 1] <- ifelse(runif(1) < p_move,
+                         proposal,
+                         chain[i])
+}
+head(chain)
+```
+
+## 
+
+```{r echo = FALSE}
+data.frame(chain, index = 1:(it + 1)) %>%
+  filter(index > burn_in) %>%
+  ggplot(aes(x = chain)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  geom_density(col = "steelblue") +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+```{r}
+(acceptance <- 1 - mean(duplicated(chain[-(1:burn_in)])))
+```
+
+
+## Low variance jump
+
+```{r echo = FALSE}
+ggplot(data.frame(x = c(0, 4)), aes(x = x)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  stat_function(fun = dnorm, args = list(1.2, .1), lty = 3) +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+
+##
+
+```{r echo = FALSE}
+theta_0 <- 1.2
+tau <- .1
+it <- 10000
+chain <- rep(NA, it + 1)
+chain[1] <- theta_0
+for (i in 1:it) {
+  proposal <- rnorm(1, chain[i], tau)
+  p_move <- min(dgamma(proposal, 2, 3)/dgamma(chain[i], 2, 3), 1)
+  chain[i + 1] <- ifelse(runif(1) < p_move,
+                         proposal,
+                         chain[i])
+}
+```
+
+```{r echo = FALSE}
+data.frame(chain, index = 1:(it + 1)) %>%
+  ggplot(aes(x = chain)) +
+  stat_function(fun = dgamma, args = list(2, 3)) +
+  geom_density(col = "steelblue") +
+  theme_bw() +
+  labs(x = expression(theta))
+```
+
+```{r}
+(acceptance <- 1 - mean(duplicated(chain[-(1:burn_in)])))
+```
+
+
+# Bayesian Regression
+
+## Generate data
+
+```{r}
+set.seed(79)
+B0 <- 0
+B1 <- 5
+sigma <- 10
+n <- 31
+x <- (-(n-1)/2):((n-1)/2)
+y <-  B0 + B1 * x + rnorm(n, mean = 0, sd = sigma)
+```
+
+##
+
+```{r echo = FALSE}
+df <- data.frame(x, y)
+ggplot(df, aes(x = x, y = y)) +
+  geom_point() + 
+  theme_bw()
+```
+
+
+## The likelihood
+
+```{r}
+likelihood <- function(theta) {
+    B0 <- theta[1]
+    B1 <- theta[2]
+    sigma <- theta[3]
+    y_fit <- B0 + B1 * x
+    logLik_vec <- dnorm(y, mean = y_fit, sd = sigma, log = T)
+    sum(logLik_vec)
+}
+```
+
+
+## The Prior
+
+```{r}
+prior <- function(theta) {
+    B0 <- theta[1]
+    B1 <- theta[2]
+    sigma <- theta[3]
+    B0_prior <- dnorm(B0, sd = 5, log = T)
+    B1_prior <- dunif(B1, min = 0, max = 10, log = T)
+    sigma_prior <- dunif(sigma, min = 0, max = 30, log = T)
+    B0_prior + B1_prior + sigma_prior
+}
+```
+
+
+## The Posterior {.build}
+
+```{r}
+posterior <- function(theta) {
+   likelihood(theta) + prior(theta)
+}
+```
+
+Why are we using logs of everything? Why don't we care about the constant of proportionality?
+
+##
+
+Boardwork
+
+## Metropolis Algorithm
+
+```{r}
+it <- 10000
+chain <- matrix(rep(NA, (it + 1) * 3), ncol = 3)
+theta_0 <- c(0, 4, 10)
+chain[1, ] <- theta_0
+for (i in 1:it){
+  proposal <- rnorm(3, mean = chain[i, ], sd = c(0.5,0.1,0.3))
+  p_move <- exp(posterior(proposal) - posterior(chain[i, ]))
+  if (runif(1) < p_move) {
+    chain[i + 1, ] <- proposal
+  } else {
+    chain[i + 1, ] <- chain[i, ]
+  }
+}
+head(chain)
+```
+ 
+
+## Trace chain 
+ 
+```{r echo = FALSE, message = FALSE, fig.height=3.5}
+burn_in <- 5000
+acceptance <- 1 - mean(duplicated(chain[-(1:burn_in),]))
+colnames(chain) <- c("B0", "B1", "sigma")
+chain <- data.frame(chain, index = 1:(it + 1))
+
+trace_chain <- function(chain, n, n_new = 500) {
+  chain %>%
+  slice(1:n) %>%
+  mutate(generation = index > (n - n_new)) %>%
+  ggplot(aes(x = B0, y = B1)) +
+  geom_path(aes(col = generation)) +
+  scale_colour_manual(values = c("gray", "steelblue")) +
+  guides(col = FALSE) +
+  theme_bw() +
+  xlim(range(chain$B0[1:1500])) +
+  ylim(range(chain$B1[1:1500]))
+}
+
+p1 <- chain %>%
+  slice(1:500) %>%
+  ggplot(aes(x = B0, y = B1)) +
+  geom_path(col = "steelblue") +
+  theme_bw() +
+  xlim(range(chain$B0[1:1500])) +
+  ylim(range(chain$B1[1:1500]))
+p2 <- trace_chain(chain, n = 1000, n_new = 500)
+p3 <- trace_chain(chain, n = 1500, n_new = 500)
+library(gridExtra)
+grid.arrange(p1, p2, p3, nrow = 1)
+```
+
+
+## Sigma vs Betas
+
+```{r echo = FALSE}
+chain %>%
+  slice(burn_in:(it + 1)) %>%
+  mutate(sig_bins = cut(sigma, breaks = 6)) %>%
+  ggplot(aes(x = B0, y = B1)) +
+  geom_point() +
+  facet_wrap(~sig_bins) +
+  theme_bw()
+```
+
+
+## From Prior to Posterior
+
+```{r echo = FALSE, message = FALSE, warning=FALSE}
+B0_prior <- ggplot(data.frame(x = c(-15, 15)), aes(x = x)) +
+  stat_function(fun = dnorm, args = list(sd = 5)) +
+  labs(y = "") +
+  theme_bw() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+B1_prior <- ggplot(data.frame(x = c(-.001, 10.001)), aes(x = x)) +
+  stat_function(fun = dunif, args = list(min = 0, max = 10)) +
+  labs(y = "") +
+  theme_bw() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+sigma_prior <- ggplot(data.frame(x = c(-.001, 30.001)), aes(x = x)) +
+  stat_function(fun = dunif, args = list(min = 0, max = 30)) +
+  labs(y = "") +
+  theme_bw() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+B0_posterior <- ggplot(chain, aes(x = B0)) +
+  geom_histogram() +
+  labs(y = "") +
+  theme_bw() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  geom_vline(xintercept = B0, col = "goldenrod")
+B1_posterior <- ggplot(chain, aes(x = B1)) +
+  geom_histogram() +
+  labs(y = "") +
+  theme_bw() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  geom_vline(xintercept = B1, col = "goldenrod")
+sigma_posterior <- ggplot(chain, aes(x = sigma)) +
+  geom_histogram() +
+  labs(y = "") +
+  theme_bw() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  geom_vline(xintercept = sigma, col = "goldenrod")
+grid.arrange(B0_prior, B1_prior, sigma_prior,
+             B0_posterior, B1_posterior, sigma_posterior,
+             ncol = 3)
+```
+
+
+## Bayesian Point Estimates {.build}
+
+There are several options for turning the posterior distribution of the parameters into point estimates of the coefficients. We'll use the mean.
+
+```{r}
+(B0_bayes <- mean(chain$B0))
+(B1_bayes <- mean(chain$B1))
+(sigma_bayes <- mean(chain$sigma))
+```
+
+
+##
+
+We can compare those to the maximum likelihood / least squares estimates.
+
+```{r}
+df <- data.frame(x, y)
+m1 <- lm(y ~ x, df)
+coef(m1)
+```
+
+
+## Two approaches
+
+```{r echo = FALSE}
+ggplot(df, aes(x, y)) +
+  geom_point() +
+  geom_abline(intercept = coef(m1)[1], slope = coef(m1)[2], col = "lavender") +
+  geom_abline(intercept = B0_bayes, slope = B1_bayes, col = "blue")
+```
+
+
+## Intervals on $\beta_1$ {.build}
+
+### Confidence Interval
+
+```{r}
+confint(m1, parm = 2)
+```
+
+### Credible Interval
+
+```{r}
+quantile(chain$B1, c(.025, .975))
+```
+
+
